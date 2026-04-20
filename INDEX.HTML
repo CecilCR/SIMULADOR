@@ -1,0 +1,1306 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Simulador de Autogestión Emocional</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+
+  <style>
+    :root {
+      --ink:     #0f0f14;
+      --surface: #f5f4f0;
+      --card:    #ffffff;
+      --accent:  #3b5bdb;
+      --accent2: #7c3aed;
+      --warn:    #e63946;
+      --ok:      #2a9d8f;
+      --muted:   #6b7280;
+      --border:  #e2e0d8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background-color: var(--surface);
+      color: var(--ink);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, h4, .heading { font-family: 'Syne', sans-serif; }
+
+    /* ─── NOISE TEXTURE OVERLAY ─── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 0;
+    }
+
+    /* ─── HEADER ─── */
+    .site-header {
+      background: var(--ink);
+      color: #fff;
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky; top: 0; z-index: 50;
+      border-bottom: 1px solid #1e1e2e;
+    }
+    .site-header .logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.1rem;
+      letter-spacing: -0.02em;
+    }
+    .site-header .logo span { color: #818cf8; }
+    .badge-course {
+      font-size: 0.7rem;
+      font-weight: 500;
+      background: #1e1e2e;
+      border: 1px solid #2e2e45;
+      color: #a5b4fc;
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    /* ─── HERO / INTRO ─── */
+    #screen-intro {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: calc(100vh - 56px);
+      padding: 3rem 1rem;
+      text-align: center;
+    }
+
+    .hero-ring {
+      width: 140px; height: 140px;
+      border-radius: 50%;
+      background: conic-gradient(from 200deg, #3b5bdb, #7c3aed, #2a9d8f, #3b5bdb);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 2rem;
+      box-shadow: 0 0 60px rgba(59,91,219,0.25);
+      animation: spin-ring 12s linear infinite;
+    }
+    .hero-ring-inner {
+      width: 110px; height: 110px;
+      border-radius: 50%;
+      background: var(--surface);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.8rem;
+    }
+    @keyframes spin-ring {
+      to { transform: rotate(360deg); }
+    }
+
+    .hero-title {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      max-width: 640px;
+    }
+    .hero-title .highlight {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-sub {
+      margin-top: 1rem;
+      font-size: 1.05rem;
+      color: var(--muted);
+      max-width: 520px;
+      line-height: 1.6;
+    }
+
+    .theory-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+      margin-top: 1.5rem;
+    }
+    .theory-pill {
+      font-size: 0.72rem;
+      font-weight: 500;
+      padding: 0.3rem 0.85rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--muted);
+      letter-spacing: 0.03em;
+    }
+
+    /* ─── BUTTONS ─── */
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--ink);
+      color: #fff;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      padding: 0.85rem 2.2rem;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      margin-top: 2rem;
+      transition: transform 0.15s, box-shadow 0.15s;
+      box-shadow: 0 4px 20px rgba(15,15,20,0.18);
+      letter-spacing: -0.01em;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(15,15,20,0.22);
+    }
+    .btn-primary:active { transform: translateY(0); }
+
+    .btn-outline {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: transparent;
+      color: var(--ink);
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      padding: 0.75rem 1.8rem;
+      border-radius: 12px;
+      border: 2px solid var(--ink);
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    .btn-outline:hover { background: var(--ink); color: #fff; }
+
+    /* ─── SCREENS ─── */
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    /* ─── PROGRESS BAR ─── */
+    .progress-wrap {
+      max-width: 760px;
+      margin: 0 auto 2rem;
+      padding: 0 1rem;
+    }
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+    .progress-track {
+      height: 6px;
+      background: var(--border);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      border-radius: 999px;
+      transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    /* ─── SCENARIO CARD ─── */
+    .scenario-wrapper {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 1.5rem 1rem 4rem;
+    }
+
+    .scenario-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      background: rgba(59,91,219,0.08);
+      border: 1px solid rgba(59,91,219,0.2);
+      padding: 0.3rem 0.8rem;
+      border-radius: 999px;
+      margin-bottom: 1rem;
+    }
+
+    .scenario-card {
+      background: var(--card);
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 24px rgba(0,0,0,0.06);
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+      animation: fade-up 0.4s ease both;
+    }
+    @keyframes fade-up {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .scenario-header {
+      padding: 1.5rem 1.75rem 1rem;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(135deg, #f8f8ff 0%, #fff 100%);
+    }
+    .scenario-number {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.4rem;
+    }
+    .scenario-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 800;
+      line-height: 1.3;
+      margin-bottom: 0.5rem;
+    }
+    .scenario-context {
+      font-size: 0.82rem;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    .scenario-body { padding: 1.75rem; }
+
+    .dialogue-box {
+      background: #f9f9fb;
+      border-left: 4px solid var(--accent);
+      border-radius: 0 12px 12px 0;
+      padding: 1rem 1.25rem;
+      font-size: 0.92rem;
+      line-height: 1.65;
+      color: #2d2d3e;
+      margin-bottom: 1.25rem;
+      font-style: italic;
+    }
+
+    .sensation-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.8rem;
+      color: var(--warn);
+      background: rgba(230,57,70,0.07);
+      border: 1px solid rgba(230,57,70,0.18);
+      padding: 0.3rem 0.75rem;
+      border-radius: 8px;
+      font-weight: 500;
+      margin-bottom: 1.5rem;
+    }
+
+    /* ─── OPTIONS ─── */
+    .options-label {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 0.75rem;
+    }
+
+    .option-btn {
+      width: 100%;
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      background: var(--card);
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 0.75rem;
+      cursor: pointer;
+      text-align: left;
+      transition: border-color 0.2s, background 0.2s, transform 0.15s;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .option-btn:hover:not(:disabled) {
+      border-color: var(--accent);
+      background: rgba(59,91,219,0.04);
+      transform: translateX(4px);
+    }
+    .option-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    .option-badge {
+      flex-shrink: 0;
+      width: 30px; height: 30px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 0.85rem;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      color: var(--ink);
+      transition: background 0.2s, color 0.2s, border-color 0.2s;
+    }
+    .option-btn:hover:not(:disabled) .option-badge {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .option-text {
+      font-size: 0.9rem;
+      line-height: 1.55;
+      color: var(--ink);
+    }
+    .option-sublabel {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      display: block;
+      margin-bottom: 0.2rem;
+    }
+
+    /* ─── FEEDBACK PANEL ─── */
+    .feedback-panel {
+      background: var(--card);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      margin-top: 1rem;
+      animation: fade-up 0.35s ease both;
+      display: none;
+    }
+    .feedback-panel.visible { display: block; }
+
+    .feedback-header {
+      padding: 0.9rem 1.25rem;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .feedback-header.type-a { background: rgba(230,57,70,0.08); color: var(--warn); border-bottom: 1px solid rgba(230,57,70,0.15); }
+    .feedback-header.type-b { background: rgba(245,158,11,0.08); color: #b45309; border-bottom: 1px solid rgba(245,158,11,0.15); }
+    .feedback-header.type-c { background: rgba(42,157,143,0.08); color: var(--ok); border-bottom: 1px solid rgba(42,157,143,0.15); }
+
+    .feedback-body {
+      padding: 1.1rem 1.25rem;
+      font-size: 0.88rem;
+      line-height: 1.65;
+      color: #3d3d4e;
+    }
+
+    .theory-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.2rem 0.6rem;
+      border-radius: 6px;
+      background: rgba(59,91,219,0.08);
+      color: var(--accent);
+      border: 1px solid rgba(59,91,219,0.15);
+      margin-top: 0.6rem;
+    }
+
+    .next-btn-wrap {
+      margin-top: 1.5rem;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    /* ─── RESULTS SCREEN ─── */
+    #screen-results {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 2rem 1rem 4rem;
+    }
+
+    .results-hero {
+      text-align: center;
+      margin-bottom: 2.5rem;
+      animation: fade-up 0.4s ease both;
+    }
+    .results-hero h2 {
+      font-size: clamp(1.8rem, 4vw, 2.5rem);
+      font-weight: 800;
+      line-height: 1.2;
+      letter-spacing: -0.03em;
+    }
+    .results-hero p {
+      font-size: 0.95rem;
+      color: var(--muted);
+      margin-top: 0.5rem;
+    }
+
+    .results-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+    @media (max-width: 600px) {
+      .results-grid { grid-template-columns: 1fr; }
+    }
+
+    .result-stat-card {
+      background: var(--card);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      padding: 1.25rem 1.5rem;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+      animation: fade-up 0.4s ease both;
+    }
+    .result-stat-card .stat-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: var(--muted);
+      margin-bottom: 0.4rem;
+    }
+    .result-stat-card .stat-value {
+      font-family: 'Syne', sans-serif;
+      font-size: 2.2rem;
+      font-weight: 800;
+      line-height: 1;
+    }
+    .stat-value.green { color: var(--ok); }
+    .stat-value.orange { color: #f59e0b; }
+    .stat-value.red { color: var(--warn); }
+
+    .chart-card {
+      background: var(--card);
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      padding: 1.75rem;
+      box-shadow: 0 2px 20px rgba(0,0,0,0.06);
+      margin-bottom: 1.5rem;
+      animation: fade-up 0.5s ease 0.1s both;
+    }
+    .chart-card h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 1.25rem;
+    }
+    .chart-container { position: relative; height: 260px; }
+
+    /* ─── SCARF BARS ─── */
+    .scarf-card {
+      background: var(--card);
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      padding: 1.75rem;
+      margin-bottom: 1.5rem;
+      animation: fade-up 0.5s ease 0.15s both;
+    }
+    .scarf-card h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+    .scarf-card .scarf-sub {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 1.25rem;
+    }
+
+    .scarf-bar-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.9rem;
+    }
+    .scarf-bar-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      width: 90px;
+      flex-shrink: 0;
+      color: var(--ink);
+    }
+    .scarf-bar-track {
+      flex: 1;
+      height: 8px;
+      background: var(--border);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .scarf-bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      transition: width 1s cubic-bezier(0.4,0,0.2,1);
+    }
+    .scarf-bar-val {
+      font-size: 0.78rem;
+      font-weight: 700;
+      width: 34px;
+      text-align: right;
+      flex-shrink: 0;
+      color: var(--muted);
+    }
+
+    /* ─── THEORY CARD ─── */
+    .theory-card {
+      background: var(--ink);
+      color: #e8e8f0;
+      border-radius: 20px;
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+      animation: fade-up 0.5s ease 0.2s both;
+    }
+    .theory-card h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .theory-item {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.1rem;
+      padding-bottom: 1.1rem;
+      border-bottom: 1px solid #1e1e2e;
+    }
+    .theory-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+    .theory-item-icon {
+      flex-shrink: 0;
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      background: #1e1e2e;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+    }
+    .theory-item-content h4 {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #a5b4fc;
+      margin-bottom: 0.2rem;
+    }
+    .theory-item-content p {
+      font-size: 0.82rem;
+      line-height: 1.6;
+      color: #9ca3af;
+    }
+
+    /* ─── PROFILE BADGE ─── */
+    .profile-badge {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff;
+      border-radius: 20px;
+      padding: 1.75rem 2rem;
+      text-align: center;
+      margin-bottom: 1.5rem;
+      animation: fade-up 0.4s ease 0.05s both;
+    }
+    .profile-badge .badge-icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+    .profile-badge .badge-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      opacity: 0.8;
+      margin-bottom: 0.3rem;
+    }
+    .profile-badge .badge-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+    .profile-badge .badge-desc {
+      font-size: 0.85rem;
+      opacity: 0.85;
+      margin-top: 0.5rem;
+      line-height: 1.5;
+    }
+
+    /* ─── ACTIONS ─── */
+    .actions-row {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 2rem;
+    }
+
+    /* ─── TOOLTIP DOT ─── */
+    .dot-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .dot.green  { background: var(--ok); }
+    .dot.orange { background: #f59e0b; }
+    .dot.red    { background: var(--warn); }
+
+    /* ─── SCROLL SMOOTH ─── */
+    html { scroll-behavior: smooth; }
+  </style>
+</head>
+<body>
+
+  <!-- ════ HEADER ════ -->
+  <header class="site-header">
+    <div class="logo">Auto<span>Gestión</span> Lab</div>
+    <span class="badge-course">Gestión Organizacional</span>
+  </header>
+
+  <!-- ════════════════════════════════════
+       SCREEN 1 · INTRO
+  ════════════════════════════════════ -->
+  <div id="screen-intro" class="screen active">
+    <div class="hero-ring">
+      <div class="hero-ring-inner">🧠</div>
+    </div>
+    <h1 class="hero-title">
+      Simulador de<br/>
+      <span class="highlight">Autogestión Emocional</span>
+    </h1>
+    <p class="hero-sub">
+      3 escenarios reales del entorno laboral. Tus decisiones revelan tu perfil de regulación emocional y los dominios SCARF que más te afectan.
+    </p>
+    <div class="theory-pills">
+      <span class="theory-pill">🧠 Amygdala Hijack · Goleman</span>
+      <span class="theory-pill">🎯 Modelo SCARF · Rock</span>
+      <span class="theory-pill">💡 Modelo ABC · Ellis</span>
+      <span class="theory-pill">🤝 Seguridad Psicológica · Edmondson</span>
+    </div>
+    <button class="btn-primary" onclick="startSimulator()">
+      Comenzar simulación →
+    </button>
+  </div>
+
+  <!-- ════════════════════════════════════
+       SCREEN 2 · SCENARIOS
+  ════════════════════════════════════ -->
+  <div id="screen-scenarios" class="screen">
+    <!-- PROGRESS -->
+    <div class="progress-wrap" style="padding-top:2rem;">
+      <div class="progress-label">
+        <span id="progress-label-text">Escenario 1 de 3</span>
+        <span id="progress-pct">0%</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <!-- SCENARIO CONTAINER (JS will inject here) -->
+    <div class="scenario-wrapper" id="scenario-container"></div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       SCREEN 3 · RESULTS
+  ════════════════════════════════════ -->
+  <div id="screen-results" class="screen">
+
+    <div class="results-hero">
+      <h2>Tu Perfil de Autogestión</h2>
+      <p>Basado en tus 3 decisiones — análisis fundamentado en neurociencia y comportamiento organizacional</p>
+    </div>
+
+    <!-- PROFILE BADGE -->
+    <div class="profile-badge" id="profile-badge">
+      <div class="badge-icon" id="profile-icon">🧘</div>
+      <div class="badge-label">Tu perfil dominante</div>
+      <div class="badge-title" id="profile-title">—</div>
+      <div class="badge-desc" id="profile-desc">—</div>
+    </div>
+
+    <!-- STAT CARDS -->
+    <div class="results-grid">
+      <div class="result-stat-card">
+        <div class="stat-label">Respuestas Reguladas (C)</div>
+        <div class="stat-value green" id="stat-c">0</div>
+        <div style="font-size:0.8rem;color:var(--muted);margin-top:0.3rem;">de 3 escenarios</div>
+      </div>
+      <div class="result-stat-card">
+        <div class="stat-label">Respuestas Reactivas (A)</div>
+        <div class="stat-value red" id="stat-a">0</div>
+        <div style="font-size:0.8rem;color:var(--muted);margin-top:0.3rem;">de 3 escenarios</div>
+      </div>
+      <div class="result-stat-card">
+        <div class="stat-label">Respuestas Evasivas (B)</div>
+        <div class="stat-value orange" id="stat-b">0</div>
+        <div style="font-size:0.8rem;color:var(--muted);margin-top:0.3rem;">de 3 escenarios</div>
+      </div>
+      <div class="result-stat-card">
+        <div class="stat-label">Índice de IE Aplicada</div>
+        <div class="stat-value green" id="stat-ie">—</div>
+        <div style="font-size:0.8rem;color:var(--muted);margin-top:0.3rem;">escala 0–100</div>
+      </div>
+    </div>
+
+    <!-- CHART -->
+    <div class="chart-card">
+      <h3>⚡ Distribución de Respuestas</h3>
+      <div class="chart-container">
+        <canvas id="responseChart"></canvas>
+      </div>
+    </div>
+
+    <!-- SCARF BARS -->
+    <div class="scarf-card">
+      <h3>🎯 Dominios SCARF Activados</h3>
+      <p class="scarf-sub">Nivel de amenaza percibida en cada dominio según tus elecciones (Rock, 2008)</p>
+
+      <div class="scarf-bar-row">
+        <span class="scarf-bar-label">Estatus</span>
+        <div class="scarf-bar-track">
+          <div class="scarf-bar-fill" id="scarf-status" style="width:0%;background:#e63946;"></div>
+        </div>
+        <span class="scarf-bar-val" id="scarf-status-val">—</span>
+      </div>
+      <div class="scarf-bar-row">
+        <span class="scarf-bar-label">Certeza</span>
+        <div class="scarf-bar-track">
+          <div class="scarf-bar-fill" id="scarf-certainty" style="width:0%;background:#f59e0b;"></div>
+        </div>
+        <span class="scarf-bar-val" id="scarf-certainty-val">—</span>
+      </div>
+      <div class="scarf-bar-row">
+        <span class="scarf-bar-label">Autonomía</span>
+        <div class="scarf-bar-track">
+          <div class="scarf-bar-fill" id="scarf-autonomy" style="width:0%;background:#3b5bdb;"></div>
+        </div>
+        <span class="scarf-bar-val" id="scarf-autonomy-val">—</span>
+      </div>
+      <div class="scarf-bar-row">
+        <span class="scarf-bar-label">Relación</span>
+        <div class="scarf-bar-track">
+          <div class="scarf-bar-fill" id="scarf-relat" style="width:0%;background:#7c3aed;"></div>
+        </div>
+        <span class="scarf-bar-val" id="scarf-relat-val">—</span>
+      </div>
+      <div class="scarf-bar-row">
+        <span class="scarf-bar-label">Justicia</span>
+        <div class="scarf-bar-track">
+          <div class="scarf-bar-fill" id="scarf-fair" style="width:0%;background:#2a9d8f;"></div>
+        </div>
+        <span class="scarf-bar-val" id="scarf-fair-val">—</span>
+      </div>
+    </div>
+
+    <!-- THEORY EXPLANATION -->
+    <div class="theory-card" id="theory-card">
+      <h3>📚 Teoría que explica tu resultado</h3>
+      <div id="theory-content"></div>
+    </div>
+
+    <!-- ACTIONS -->
+    <div class="actions-row">
+      <button class="btn-primary" onclick="resetSimulator()">↺ Reiniciar simulación</button>
+      <button class="btn-outline" onclick="window.print()">Imprimir reporte</button>
+    </div>
+
+  </div><!-- /screen-results -->
+
+  <!-- ════ JS (continuará en bloque 2) ════ -->
+  <script>
+    // ► El JavaScript se entregará en el siguiente bloque
+    // ► Funciones definidas: startSimulator(), resetSimulator(), renderScenario(), selectOption(), showResults()
+    console.log("HTML/CSS listo. Esperando JS...");
+  <script>
+// ════════════════════════════════════════════════════════════
+//  SIMULADOR DE AUTOGESTIÓN EMOCIONAL
+//  Basado en: Goleman, Rock (SCARF), Ellis (ABC), Edmondson
+// ════════════════════════════════════════════════════════════
+
+// ─── DATA ───────────────────────────────────────────────────
+const SCENARIOS = [
+  {
+    id: 1,
+    tag: "🎬 Escenario 1",
+    title: "El 'Gaslighting' en las Prácticas",
+    context: "Primer mes de prácticas en una corporación. Entregaste un reporte que tomó 10 horas.",
+    dialogue: `"Te pedí esto hace dos días y lo que me entregas es básicamente un copy-paste de la web. ¿En la universidad no les enseñan a analizar datos o simplemente no te interesa el puesto?"`,
+    sensation: "💥 Sientes un vacío en el estómago y presión en el pecho.",
+    scarfDomain: "Estatus",
+    options: [
+      {
+        key: "A",
+        label: "Ataque",
+        emoji: "⚡",
+        text: "\"Eso no es cierto. Usted me lo pidió ayer a las 4 p.m. y el análisis es profundo. Quizás debería leerlo completo antes de juzgar mi trabajo.\"",
+        feedback: "Has caído en la trampa de la defensiva. En una empresa, aunque tengas razón, atacar al jefe frente a otros se percibe como falta de inteligencia política. Tu amígdala acaba de secuestrar tu corteza prefrontal.",
+        theory: "Secuestro de la Amígdala · Goleman (1995)",
+        type: "a"
+      },
+      {
+        key: "B",
+        label: "Huida",
+        emoji: "🚪",
+        text: "\"Perdón... tiene razón. Debí esforzarme más. Lo vuelvo a hacer de cero ahora mismo.\" (Sales de la oficina sintiéndote incapaz.)",
+        feedback: "Has validado una crítica injusta. Esto daña tu autoeficacia y enseña al entorno que pueden sobrepasarte sin resistencia profesional. La evasión refuerza el patrón de amenaza.",
+        theory: "Modelo ABC · Ellis (1955) — tu 'B' catastrofista genera la huida",
+        type: "b"
+      },
+      {
+        key: "C",
+        label: "Regulación",
+        emoji: "🎯",
+        text: "\"Entiendo que el nivel de profundidad es prioritario. Para alinearnos, ¿podría señalarme qué sección específica considera que le falta rigor técnico? Así podré ajustar el enfoque de inmediato.\"",
+        feedback: "Has usado curiosidad táctica. Mantienes tu estatus, proteges tu autonomía y obligas al otro a salir del ataque personal para volver al dato técnico. Esto es Inteligencia Emocional aplicada.",
+        theory: "IE Aplicada · Salovey & Mayer + SCARF: defensa del Estatus",
+        type: "c"
+      }
+    ]
+  },
+  {
+    id: 2,
+    tag: "🎬 Escenario 2",
+    title: "La Traición en el Trabajo Grupal",
+    context: "Gerencia Estratégica. El trabajo final vale 40% de la nota. Faltan 2 horas para la entrega.",
+    dialogue: `"Oye, borré la parte de 'Análisis de Riesgos' porque me pareció que sobraba y ya subí la versión final. No me dio tiempo de avisarte, pero confía en mí, quedó mejor así."`,
+    sensation: "🔥 Sientes calor en la cara y tus manos empiezan a temblar.",
+    scarfDomain: "Justicia / Autonomía",
+    options: [
+      {
+        key: "A",
+        label: "Ataque",
+        emoji: "⚡",
+        text: "Llamas por teléfono y le gritas: \"¡Eres un irresponsable! ¡Quién te crees para borrar mi trabajo sin preguntar! Si bajamos la nota, te voy a reportar con el profesor.\"",
+        feedback: "Has permitido que la amígdala destruya la cohesión del equipo justo antes de un hito crítico. El conflicto ahora es personal, no operativo. Pierdes tiempo valioso en las 2 horas restantes.",
+        theory: "Seguridad Psicológica · Edmondson (1999) — la destruyes en tu propio equipo",
+        type: "a"
+      },
+      {
+        key: "B",
+        label: "Evasión",
+        emoji: "🚪",
+        text: "No dices nada. Te resignas y piensas que \"bueno, al menos ya se subió\". Decides que no volverás a trabajar con él, pero te guardas el resentimiento.",
+        feedback: "Estás permitiendo la erosión de tu propiedad intelectual. Como administrador, la complacencia ante el error ajeno es una falla de control. El resentimiento acumulado destruye el capital relacional.",
+        theory: "Modelo ABC · Ellis — la resignación es una 'C' disfuncional ante una 'B' catastrófica",
+        type: "b"
+      },
+      {
+        key: "C",
+        label: "Regulación",
+        emoji: "🎯",
+        text: "Escribes: \"Esa sección era fundamental para el sustento estratégico. Por favor, mándame el acceso ahora mismo para reintegrar los puntos clave antes de que cierre el sistema. Después de la entrega nos reunimos para coordinar.\"",
+        feedback: "Has priorizado el objetivo organizacional (la nota/el proyecto). Pusiste un límite claro sin quemar el puente comunicativo. Esto es gestión de stakeholders bajo presión.",
+        theory: "SCARF: restauras Justicia + Autonomía · Edmondson: mantienes el clima de equipo",
+        type: "c"
+      }
+    ]
+  },
+  {
+    id: 3,
+    tag: "🎬 Escenario 3",
+    title: "La Incertidumbre del 'Tenemos que hablar'",
+    context: "Tu jefe te envía un mensaje por Teams el jueves a las 5:00 p.m. y cierra sesión sin más contexto.",
+    dialogue: `"Hola, mañana a primera hora necesito que nos reunamos. Hay algunos temas de tu desempeño y de tu continuidad en el área que no me están cuadrando. Nos vemos a las 8:00 a.m."`,
+    sensation: "🥶 Empiezas a sudar frío y dejas de escuchar lo que pasa a tu alrededor.",
+    scarfDomain: "Certeza",
+    options: [
+      {
+        key: "A",
+        label: "Catastrofizar",
+        emoji: "⚡",
+        text: "Pasas la noche pensando que te van a despedir. Buscas culpables y piensas: \"Seguro fue por el error del reporte\". Llegas a la reunión a la defensiva y ojeroso.",
+        feedback: "Estás en secuestro emocional crónico. El cortisol está bloqueando tu neocórtex. Si mañana te piden una solución creativa, no podrás darla. Tu cerebro operó en modo 'huida' toda la noche.",
+        theory: "Amygdala Hijack · Goleman + SCARF: amenaza a la Certeza al máximo nivel",
+        type: "a"
+      },
+      {
+        key: "B",
+        label: "Evitar",
+        emoji: "🚪",
+        text: "Te pones a hacer otras tareas mecánicas para 'no pensar'. Evitas hablar con nadie y te vas a dormir temprano con una sensación de opresión en el pecho.",
+        feedback: "La evitación es una estrategia de corto plazo que amplifica la ansiedad. Tu cerebro sigue procesando la amenaza en background, sin datos reales para calmarse. Llegas igual de tenso.",
+        theory: "Modelo ABC · Ellis — evitar el 'A' no cambia el 'B' ni el 'C'",
+        type: "b"
+      },
+      {
+        key: "C",
+        label: "Regulación",
+        emoji: "🎯",
+        text: "Aplicas una pausa. Te preguntas: '¿Qué evidencia real tengo de mal desempeño?'. Envías: \"Estaré ahí. Para llegar preparado/a, ¿podría indicarme en qué KPIs o proyectos debemos enfocarnos?\"",
+        feedback: "Estás gestionando la amenaza a la Certeza del modelo SCARF. Al pedir información, obligas a tu cerebro a pasar del modo pánico al modo planificación. Eso es regulación ejecutiva activa.",
+        theory: "SCARF: reduces la amenaza a Certeza · Modelo ABC: modificas tu 'B' con datos reales",
+        type: "c"
+      }
+    ]
+  }
+];
+
+// ─── SCARF WEIGHTS POR ESCENARIO Y DECISIÓN ─────────────────
+// [status, certainty, autonomy, relatedness, fairness]  — nivel de amenaza 0–100
+const SCARF_WEIGHTS = {
+  "1A": [90, 30, 60, 50, 70],
+  "1B": [80, 40, 30, 40, 60],
+  "1C": [20, 20, 20, 20, 20],
+  "2A": [50, 40, 70, 80, 90],
+  "2B": [50, 45, 65, 70, 85],
+  "2C": [20, 20, 20, 20, 20],
+  "3A": [30, 95, 50, 40, 40],
+  "3B": [30, 85, 45, 35, 35],
+  "3C": [20, 20, 20, 20, 20],
+};
+
+// ─── PROFILES ───────────────────────────────────────────────
+const PROFILES = {
+  "CCC": {
+    icon: "🧘",
+    title: "Líder Regulado",
+    desc: "Tienes alta capacidad de autorregulación emocional. Tu corteza prefrontal mantiene el control incluso bajo presión. Eres un activo estratégico para cualquier organización.",
+    theoryKey: "high"
+  },
+  "CCB": {
+    icon: "🎯",
+    title: "Regulado con Tendencia Evasiva",
+    desc: "Gestionas bien la mayoría de amenazas sociales, pero en algunas situaciones prefieres evitar el conflicto antes que afrontarlo con claridad. Área de desarrollo: asertividad.",
+    theoryKey: "med"
+  },
+  "CCA": {
+    icon: "⚡",
+    title: "Regulado con Foco Reactivo",
+    desc: "Manejas bien la incertidumbre y la traición, pero la crítica directa dispara tu respuesta de ataque. Tu amígdala detecta amenazas al Estatus como prioridad #1.",
+    theoryKey: "med"
+  },
+  "CBC": {
+    icon: "🌀",
+    title: "Perfil Mixto — Desarrollando IE",
+    desc: "Alternas entre regulación y evasión. Tienes conciencia emocional pero no siempre actúas desde ella. El siguiente paso es convertir la autoconciencia en acción regulada.",
+    theoryKey: "med"
+  },
+  "default": {
+    icon: "🔥",
+    title: "En Proceso de Autogestión",
+    desc: "Tus respuestas muestran patrones reactivos o evasivos frecuentes. La buena noticia: la regulación emocional es una habilidad que se entrena. Identifica tus gatillos SCARF.",
+    theoryKey: "low"
+  }
+};
+
+const THEORY_BLOCKS = {
+  high: [
+    { icon: "🧠", title: "Corteza Prefrontal Activa · Goleman", text: "Tu perfil sugiere que mantienes online tu centro ejecutivo incluso bajo presión. No experimentas el 'secuestro de la amígdala' de forma crónica." },
+    { icon: "🎯", title: "SCARF Equilibrado · Rock (2008)", text: "Los cinco dominios sociales (Estatus, Certeza, Autonomía, Relación, Justicia) no representan amenazas constantes para ti. Eso libera energía cognitiva para la toma de decisiones estratégicas." },
+    { icon: "🤝", title: "Seguridad Psicológica · Edmondson (1999)", text: "Al responder desde la curiosidad táctica y no desde el ataque, creas entornos donde los equipos se atreven a proponer ideas y cometer errores sin miedo. Eso multiplica la innovación." }
+  ],
+  med: [
+    { icon: "💡", title: "Modelo ABC · Ellis (1955)", text: "Tus respuestas muestran que en algunos escenarios tus creencias automáticas (B) generan conductas no óptimas (C). El primer paso es identificar cuál dominio SCARF dispara tu gatillo." },
+    { icon: "🧠", title: "Amygdala Hijack Parcial · Goleman", text: "En situaciones específicas, tu amígdala toma el control antes de que la corteza prefrontal pueda procesar la respuesta estratégica. Eso es normal y entrenable." },
+    { icon: "🎯", title: "Dominios SCARF a Fortalecer · Rock", text: "Revisa los dominios con mayor amenaza en tu gráfico. Esos son tus gatillos primarios. Anticiparlos reduce el impacto del secuestro emocional en un 60–70%." }
+  ],
+  low: [
+    { icon: "🔥", title: "Secuestro de la Amígdala · Goleman (1995)", text: "Tus respuestas indican que el sistema límbico está respondiendo antes que la corteza prefrontal. Esto es biológicamente normal bajo amenaza, pero puede entrenarse con práctica consciente." },
+    { icon: "📋", title: "Modelo ABC como Herramienta · Ellis", text: "Antes de responder, identifica: ¿Cuál es el hecho real (A)? ¿Qué pensamiento automático lo acompaña (B)? ¿Esa creencia tiene evidencia real o es catastrófica? Modificar B transforma C." },
+    { icon: "🛡️", title: "SCARF: Conoce tus Gatillos · Rock (2008)", text: "Cada vez que sientas tensión en el trabajo, pregúntate: ¿cuál de los 5 dominios está siendo amenazado? Nombrarlo activa la corteza prefrontal y reduce la respuesta de amenaza en el cerebro." }
+  ]
+};
+
+// ─── STATE ───────────────────────────────────────────────────
+let currentScenario = 0;
+let answers = [];          // ['A','C','B', ...]
+let chartInstance = null;
+
+// ─── NAVIGATION ─────────────────────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function startSimulator() {
+  currentScenario = 0;
+  answers = [];
+  showScreen('screen-scenarios');
+  renderScenario();
+}
+
+function resetSimulator() {
+  if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+  startSimulator();
+}
+
+// ─── PROGRESS ────────────────────────────────────────────────
+function updateProgress(idx) {
+  const pct = Math.round((idx / SCENARIOS.length) * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-pct').textContent = pct + '%';
+  document.getElementById('progress-label-text').textContent =
+    idx < SCENARIOS.length
+      ? `Escenario ${idx + 1} de ${SCENARIOS.length}`
+      : 'Completado ✓';
+}
+
+// ─── RENDER SCENARIO ─────────────────────────────────────────
+function renderScenario() {
+  updateProgress(currentScenario);
+  const s = SCENARIOS[currentScenario];
+  const container = document.getElementById('scenario-container');
+
+  container.innerHTML = `
+    <div class="scenario-tag">${s.tag} · Dominio SCARF: ${s.scarfDomain}</div>
+
+    <div class="scenario-card">
+      <div class="scenario-header">
+        <div class="scenario-number">Escenario ${s.id} / ${SCENARIOS.length}</div>
+        <div class="scenario-title">${s.title}</div>
+        <div class="scenario-context">📍 ${s.context}</div>
+      </div>
+      <div class="scenario-body">
+        <div class="dialogue-box">${s.dialogue}</div>
+        <div class="sensation-tag">${s.sensation}</div>
+
+        <div class="options-label">¿Cuál es tu reacción inmediata?</div>
+        ${s.options.map(opt => `
+          <button
+            class="option-btn"
+            id="opt-${opt.key}"
+            onclick="selectOption('${opt.key}')"
+          >
+            <div class="option-badge">${opt.key}</div>
+            <div class="option-text">
+              <span class="option-sublabel">${opt.emoji} ${opt.label}</span>
+              ${opt.text}
+            </div>
+          </button>
+        `).join('')}
+
+        <!-- Feedback panel (hidden until selection) -->
+        <div class="feedback-panel" id="feedback-panel"></div>
+
+        <!-- Next button (hidden until selection) -->
+        <div class="next-btn-wrap" id="next-wrap" style="display:none;">
+          <button class="btn-primary" onclick="nextScenario()">
+            ${currentScenario < SCENARIOS.length - 1 ? 'Siguiente escenario →' : 'Ver mis resultados →'}
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ─── SELECT OPTION ───────────────────────────────────────────
+function selectOption(key) {
+  const s = SCENARIOS[currentScenario];
+  const opt = s.options.find(o => o.key === key);
+
+  // Disable all buttons
+  document.querySelectorAll('.option-btn').forEach(btn => {
+    btn.disabled = true;
+    btn.style.opacity = '0.45';
+  });
+
+  // Highlight chosen
+  const chosen = document.getElementById('opt-' + key);
+  chosen.style.opacity = '1';
+  chosen.style.borderColor = key === 'C' ? 'var(--ok)' : key === 'A' ? 'var(--warn)' : '#f59e0b';
+  chosen.style.background = key === 'C'
+    ? 'rgba(42,157,143,0.06)'
+    : key === 'A'
+    ? 'rgba(230,57,70,0.06)'
+    : 'rgba(245,158,11,0.06)';
+
+  const badge = chosen.querySelector('.option-badge');
+  badge.style.background = key === 'C' ? 'var(--ok)' : key === 'A' ? 'var(--warn)' : '#f59e0b';
+  badge.style.color = '#fff';
+  badge.style.borderColor = 'transparent';
+
+  // Build feedback
+  const typeMap = { A: 'type-a', B: 'type-b', C: 'type-c' };
+  const labelMap = { A: '⚡ Respuesta Reactiva — Ataque', B: '🚪 Respuesta Evasiva — Huida', C: '🎯 Respuesta Regulada — Curiosidad Táctica' };
+
+  const panel = document.getElementById('feedback-panel');
+  panel.innerHTML = `
+    <div class="feedback-header ${typeMap[key]}">${labelMap[key]}</div>
+    <div class="feedback-body">
+      ${opt.feedback}
+      <div><span class="theory-chip">📚 ${opt.theory}</span></div>
+    </div>
+  `;
+  panel.classList.add('visible');
+
+  // Store answer
+  answers.push(key);
+
+  // Show next button
+  document.getElementById('next-wrap').style.display = 'flex';
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ─── NEXT SCENARIO ───────────────────────────────────────────
+function nextScenario() {
+  currentScenario++;
+  if (currentScenario < SCENARIOS.length) {
+    renderScenario();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } else {
+    updateProgress(SCENARIOS.length);
+    showResults();
+  }
+}
+
+// ─── COMPUTE SCARF ───────────────────────────────────────────
+function computeScarf() {
+  // Average threat per domain across all scenarios
+  const totals = [0, 0, 0, 0, 0];
+  answers.forEach((ans, idx) => {
+    const key = `${idx + 1}${ans}`;
+    const w = SCARF_WEIGHTS[key] || [50, 50, 50, 50, 50];
+    w.forEach((v, i) => totals[i] += v);
+  });
+  return totals.map(v => Math.round(v / answers.length));
+}
+
+// ─── PROFILE KEY ─────────────────────────────────────────────
+function getProfileKey() {
+  const key = answers.join('');
+  if (PROFILES[key]) return key;
+  // Fallback by C count
+  const cCount = answers.filter(a => a === 'C').length;
+  if (cCount === 3) return 'CCC';
+  return 'default';
+}
+
+// ─── SHOW RESULTS ────────────────────────────────────────────
+function showResults() {
+  showScreen('screen-results');
+
+  const countA = answers.filter(a => a === 'A').length;
+  const countB = answers.filter(a => a === 'B').length;
+  const countC = answers.filter(a => a === 'C').length;
+  const ieIndex = Math.round((countC / answers.length) * 100);
+
+  // Stats
+  document.getElementById('stat-a').textContent = countA;
+  document.getElementById('stat-b').textContent = countB;
+  document.getElementById('stat-c').textContent = countC;
+  document.getElementById('stat-ie').textContent = ieIndex;
+
+  // Color stat-ie
+  const ieEl = document.getElementById('stat-ie');
+  ieEl.className = 'stat-value ' + (ieIndex >= 67 ? 'green' : ieIndex >= 34 ? 'orange' : 'red');
+
+  // Profile
+  const profileKey = getProfileKey();
+  const profile = PROFILES[profileKey] || PROFILES['default'];
+  document.getElementById('profile-icon').textContent = profile.icon;
+  document.getElementById('profile-title').textContent = profile.title;
+  document.getElementById('profile-desc').textContent = profile.desc;
+
+  // Chart
+  renderChart(countA, countB, countC);
+
+  // SCARF bars
+  const scarf = computeScarf();
+  const scarfIds = ['scarf-status', 'scarf-certainty', 'scarf-autonomy', 'scarf-relat', 'scarf-fair'];
+  const scarfLabels = ['Estatus', 'Certeza', 'Autonomía', 'Relación', 'Justicia'];
+
+  setTimeout(() => {
+    scarf.forEach((val, i) => {
+      const fill = document.getElementById(scarfIds[i]);
+      const valEl = document.getElementById(scarfIds[i] + '-val');
+      if (fill) fill.style.width = val + '%';
+      if (valEl) valEl.textContent = val + '%';
+    });
+  }, 300);
+
+  // Theory blocks
+  const theoryKey = profile.theoryKey;
+  const blocks = THEORY_BLOCKS[theoryKey];
+  const theoryContent = document.getElementById('theory-content');
+  theoryContent.innerHTML = blocks.map(b => `
+    <div class="theory-item">
+      <div class="theory-item-icon">${b.icon}</div>
+      <div class="theory-item-content">
+        <h4>${b.title}</h4>
+        <p>${b.text}</p>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ─── CHART ───────────────────────────────────────────────────
+function renderChart(a, b, c) {
+  if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+
+  const ctx = document.getElementById('responseChart').getContext('2d');
+  chartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['⚡ Reactiva (Ataque)', '🚪 Evasiva (Huida)', '🎯 Regulada (Curiosidad)'],
+      datasets: [{
+        label: 'Nº de respuestas',
+        data: [a, b, c],
+        backgroundColor: [
+          'rgba(230,57,70,0.85)',
+          'rgba(245,158,11,0.85)',
+          'rgba(42,157,143,0.85)'
+        ],
+        borderColor: [
+          'rgba(230,57,70,1)',
+          'rgba(245,158,11,1)',
+          'rgba(42,157,143,1)'
+        ],
+        borderWidth: 2,
+        borderRadius: 10,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => ` ${ctx.parsed.y} de ${SCENARIOS.length} escenarios`
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 3,
+          ticks: {
+            stepSize: 1,
+            font: { family: 'DM Sans', size: 12 },
+            color: '#6b7280'
+          },
+          grid: { color: 'rgba(0,0,0,0.06)' }
+        },
+        x: {
+          ticks: {
+            font: { family: 'DM Sans', size: 12 },
+            color: '#374151'
+          },
+          grid: { display: false }
+        }
+      }
+    }
+  });
+}
+</script>
+</body>
+</html>
