@@ -836,10 +836,8 @@ const SCENARIOS = [
     id: 1,
     tag: "🎬 Escenario 1",
     title: "El 'Gaslighting' en las Prácticas",
-    context: "Estás en tu primer mes de prácticas en una corporación. Tu supervisor te pidió un reporte de mercado para hoy.
-.",
-    dialogue: `"Entras a la oficina de tu jefe y le entregas el reporte. Él lo mira apenas 5 segundos y, delante de otros practicantes, dice: 'Te pedí esto hace dos días y lo que me entregas es básicamente un copy-paste de la web. ¿En la universidad no les enseñan a analizar datos o simplemente no te interesa el puesto?' Tú sabes que dedicaste 10 horas al análisis y que él recién te lo pidió ayer por la tarde. 
-"`,
+    context: " Estás en tu primer mes de prácticas en una corporación. Tu supervisor te pidió un reporte de mercado para hoy.",
+    dialogue: `"Entras a la oficina de tu jefe y le entregas el reporte. Él lo mira apenas 5 segundos y, delante de otros practicantes, dice: 'Te pedí esto hace dos días y lo que me entregas es básicamente un copy-paste de la web. ¿En la universidad no les enseñan a analizar datos o simplemente no te interesa el puesto?' Tú sabes que dedicaste 10 horas al análisis y que él recién te lo pidió ayer por la tarde. Sientes un vacío en el estómago y una presión en el pecho."`,
     sensation: "💥 Sientes un vacío en el estómago y presión en el pecho.",
     scarfDomain: "Estatus",
     options: [
@@ -877,8 +875,9 @@ const SCENARIOS = [
     tag: "🎬 Escenario 2",
     title: "La Traición en el Trabajo Grupal",
     context: "Curso de 'Gerencia Estratégica'. El trabajo final vale el 40% de la nota.",
-    dialogue: `"Situación: Faltan 2 horas para subir el archivo al sistema de la universidad. Uno de tus compañeros, que es tu amigo, te escribe: 'Oye, borré la parte de "Análisis de Riesgos" porque me pareció que sobraba y ya subí la versión final. No me dio tiempo de avisarte, pero confía en mí, quedó mejor así.' Tú pasaste noches enteras redactando esa sección."`,
-    sensation: "🔥 Sientes calor en la cara y un malestar en el área del estómago.",
+    dialogue: `"Faltan 2 horas para subir el archivo al sistema de la universidad. Uno de tus compañeros, que es tu amigo, te escribe: 'Oye, borré la parte de "Análisis de Riesgos" porque me pareció que sobraba y ya subí la versión final. No me dio tiempo de avisarte, pero confía en mí, quedó mejor así.' Tú pasaste noches enteras redactando esa sección. 
+."`,
+    sensation: "🔥 Sientes calor en la cara y tus manos empiezan a temblar.",
     scarfDomain: "Justicia / Autonomía",
     options: [
       {
@@ -914,8 +913,8 @@ const SCENARIOS = [
     id: 3,
     tag: "🎬 Escenario 3",
     title: "La Incertidumbre del 'Tenemos que hablar'",
-    context: " Tu jefe te envía un mensaje por Teams el jueves a las 5:00 p.m.: ,
-    dialogue: `"Hola, mañana a primera hora necesito que nos reunamos. Hay algunos temas de tu desempeño y de tu continuidad en el área que no me están cuadrando. Nos vemos a las 8:00 a.m.'Hola, mañana a primera hora necesito que nos reunamos". Cierra su sesión y se va. No tienes más contexto."`,
+    context: Evaluación de desempeño o cierre de ciclo de prácticas."Tu jefe te envía un mensaje por Teams el jueves a las 5:00 p.m. y cierra sesión sin más contexto.",
+    dialogue: `"Hola, mañana a primera hora necesito que nos reunamos. Hay algunos temas de tu desempeño y de tu continuidad en el área que no me están cuadrando. Nos vemos a las 8:00 a.m."`,
     sensation: "🥶 Empiezas a sudar frío y dejas de escuchar lo que pasa a tu alrededor.",
     scarfDomain: "Certeza",
     options: [
@@ -1299,6 +1298,6 @@ function renderChart(a, b, c) {
     }
   });
 }
-</script>
+</script> 
 </body>
 </html>
