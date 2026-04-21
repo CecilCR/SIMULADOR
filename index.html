@@ -5,229 +5,849 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Simulador de Autogestión Emocional | Casos Laborales</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Inter', sans-serif; background: #f4f2ef; color: #1c1c1e; }
-    h1, h2, h3, .font-display { font-family: 'Syne', sans-serif; }
-    .glass-card { background: rgba(255, 255, 255, 0.96); border: 1px solid #e6e3dc; border-radius: 2rem; transition: all 0.2s ease; }
-    .btn-primary { background: #1f2937; color: white; font-weight: 600; padding: 0.75rem 1.8rem; border-radius: 2rem; transition: all 0.2s; display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer; border: none; }
-    .btn-primary:hover { background: #111827; transform: translateY(-2px); box-shadow: 0 10px 20px -5px rgba(0,0,0,0.1); }
-    .btn-outline { background: transparent; border: 2px solid #1f2937; padding: 0.7rem 1.8rem; border-radius: 2rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
-    .btn-outline:hover { background: #1f2937; color: white; }
-    .progress-bar { height: 6px; background: #e5e3df; border-radius: 4px; overflow: hidden; }
-    .progress-fill { height: 100%; background: #3b5bdb; width: 0%; transition: width 0.3s ease; }
-    .option-btn { width: 100%; text-align: left; background: white; border: 1px solid #e6e3dc; border-radius: 1.25rem; padding: 1rem 1.25rem; margin-bottom: 0.75rem; transition: all 0.2s; cursor: pointer; }
-    .option-btn:hover:not(:disabled) { border-color: #3b5bdb; background: #f8faff; transform: translateX(4px); }
-    .option-btn.disabled-opt { opacity: 0.6; cursor: not-allowed; }
-    .feedback-panel { display: none; background: #fef9f0; border-left: 5px solid #f59e0b; border-radius: 1rem; padding: 1rem; margin-top: 1.5rem; }
-    .feedback-panel.visible { display: block; }
-    .badge-profile { background: linear-gradient(135deg, #3b5bdb, #7c3aed); color: white; border-radius: 1.5rem; padding: 1.5rem; text-align: center; }
-    .scarf-bar { height: 8px; background: #e2e0d8; border-radius: 10px; overflow: hidden; }
-    .scarf-fill { height: 100%; width: 0%; transition: width 0.8s cubic-bezier(0.2, 0.9, 0.4, 1.1); }
-    .scarf-item { cursor: pointer; transition: all 0.2s; padding: 0.25rem 0.5rem; border-radius: 0.5rem; }
-    .scarf-item:hover { background: #f3f4f6; }
-    .tooltip-card { background: white; border-radius: 1rem; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); padding: 1rem; margin-top: 0.5rem; border-left: 4px solid; }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #f5f2ec;
+      --surface: #faf8f4;
+      --card: #ffffff;
+      --border: #e3ddd3;
+      --border-strong: #c9c3b8;
+      --text-primary: #1a1814;
+      --text-secondary: #6b6560;
+      --text-muted: #9c9690;
+      --accent-indigo: #3d4fc4;
+      --accent-indigo-light: #eef0fb;
+      --accent-indigo-mid: #8b97e8;
+      --accent-amber: #c97d20;
+      --accent-amber-light: #fef3e2;
+      --accent-green: #2a7a4b;
+      --accent-green-light: #e8f5ee;
+      --accent-red: #b83b3b;
+      --accent-red-light: #fdf0f0;
+      --accent-purple: #6b4ac4;
+      --accent-purple-light: #f0edfb;
+      --radius: 1rem;
+      --radius-sm: 0.5rem;
+      --shadow: 0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.05);
+      --shadow-hover: 0 4px 12px rgba(0,0,0,0.1), 0 12px 32px rgba(0,0,0,0.08);
+    }
+
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text-primary); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+    .serif { font-family: 'DM Serif Display', serif; }
+
+    /* ---- HEADER ---- */
+    header { position: sticky; top: 0; z-index: 50; background: var(--text-primary); color: white; padding: 0.875rem 1.5rem; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .logo { font-size: 1rem; font-weight: 600; letter-spacing: -0.01em; }
+    .logo span { color: #a5b0f4; }
+    .pill { font-size: 0.65rem; background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.7); padding: 0.2rem 0.75rem; border-radius: 100px; letter-spacing: 0.08em; text-transform: uppercase; border: 1px solid rgba(255,255,255,0.08); }
+
+    /* ---- SCREEN MANAGEMENT ---- */
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    /* ---- INTRO ---- */
+    #screenIntro { min-height: calc(100vh - 56px); display: none; flex-direction: column; align-items: center; justify-content: center; padding: 3rem 1.5rem; text-align: center; }
+    #screenIntro.active { display: flex; }
+
+    .intro-icon { width: 6rem; height: 6rem; border-radius: 50%; background: var(--text-primary); display: flex; align-items: center; justify-content: center; margin-bottom: 2rem; font-size: 2.5rem; position: relative; }
+    .intro-icon::after { content: ''; position: absolute; inset: -4px; border-radius: 50%; border: 1px solid var(--border-strong); }
+
+    .intro-title { font-size: clamp(2rem, 5vw, 3.25rem); font-weight: 400; line-height: 1.15; max-width: 600px; margin-bottom: 1.25rem; letter-spacing: -0.02em; }
+    .intro-title em { font-style: italic; color: var(--accent-indigo); }
+    .intro-desc { color: var(--text-secondary); font-size: 1.05rem; max-width: 440px; line-height: 1.65; margin-bottom: 2rem; }
+
+    .tag-row { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-bottom: 2.5rem; }
+    .tag { font-size: 0.75rem; background: var(--card); border: 1px solid var(--border); padding: 0.3rem 0.875rem; border-radius: 100px; color: var(--text-secondary); }
+
+    .btn-primary { display: inline-flex; align-items: center; gap: 0.4rem; background: var(--text-primary); color: white; font-weight: 500; font-size: 0.95rem; padding: 0.8rem 2rem; border-radius: 100px; border: none; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; font-family: 'DM Sans', sans-serif; }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: var(--shadow-hover); }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-secondary { display: inline-flex; align-items: center; gap: 0.4rem; background: var(--card); color: var(--text-primary); font-weight: 500; font-size: 0.95rem; padding: 0.75rem 2rem; border-radius: 100px; border: 1px solid var(--border-strong); cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; font-family: 'DM Sans', sans-serif; }
+    .btn-secondary:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+
+    /* ---- SCENARIO SCREEN ---- */
+    #screenScenarios { display: none; max-width: 760px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+    #screenScenarios.active { display: block; }
+
+    /* ---- PROGRESS ---- */
+    .progress-wrap { margin-bottom: 2rem; }
+    .progress-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+    .progress-label { font-size: 0.8rem; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; }
+    .progress-pct { font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); }
+    .progress-track { height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
+    .progress-bar { height: 100%; background: var(--accent-indigo); width: 0%; transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 2px; }
+
+    /* ---- SCENARIO CARD ---- */
+    .scenario-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
+    .scenario-header { padding: 1.5rem 1.75rem 1.25rem; border-bottom: 1px solid var(--border); }
+    .scenario-meta { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.6rem; }
+    .scenario-num { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); }
+    .scarf-badge { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; background: var(--accent-indigo-light); color: var(--accent-indigo); padding: 0.2rem 0.625rem; border-radius: 100px; }
+    .scenario-title { font-size: 1.35rem; font-weight: 500; letter-spacing: -0.02em; line-height: 1.3; color: var(--text-primary); }
+
+    .scenario-body { padding: 1.5rem 1.75rem; }
+    .context-note { font-size: 0.8rem; color: var(--text-muted); font-style: italic; margin-bottom: 0.75rem; line-height: 1.5; }
+    .situation-box { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent-indigo); border-radius: var(--radius-sm); padding: 1.1rem 1.25rem; font-size: 0.9rem; color: var(--text-secondary); line-height: 1.7; margin-bottom: 1rem; }
+    .symptom-note { font-size: 0.8rem; color: var(--accent-red); font-weight: 500; margin-bottom: 1.5rem; background: var(--accent-red-light); padding: 0.5rem 0.875rem; border-radius: var(--radius-sm); display: inline-block; }
+    .options-label { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.875rem; }
+
+    /* ---- OPTIONS ---- */
+    .option-btn { width: 100%; text-align: left; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0.875rem 1.1rem; margin-bottom: 0.625rem; transition: all 0.18s; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+    .option-btn:hover:not(:disabled) { border-color: var(--accent-indigo); background: var(--accent-indigo-light); transform: translateX(3px); }
+    .option-btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+    .option-btn.selected { border-color: var(--accent-indigo); background: var(--accent-indigo-light); }
+    .option-inner { display: flex; gap: 0.875rem; align-items: flex-start; }
+    .option-key { width: 1.875rem; height: 1.875rem; min-width: 1.875rem; background: var(--bg); border: 1px solid var(--border); border-radius: 0.375rem; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); }
+    .option-btn.selected .option-key { background: var(--accent-indigo); border-color: var(--accent-indigo); color: white; }
+    .option-label-tag { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 0.2rem; }
+    .option-text { font-size: 0.875rem; color: var(--text-secondary); line-height: 1.55; }
+
+    /* ---- FEEDBACK ---- */
+    .feedback-panel { display: none; background: var(--accent-amber-light); border: 1px solid #f0d09b; border-left: 3px solid var(--accent-amber); border-radius: var(--radius-sm); padding: 1.1rem 1.25rem; margin-top: 1.25rem; }
+    .feedback-panel.visible { display: block; animation: fadeIn 0.25s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    .feedback-title { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent-amber); margin-bottom: 0.4rem; }
+    .feedback-text { font-size: 0.875rem; color: var(--text-secondary); line-height: 1.6; }
+    .theory-pill { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.72rem; font-weight: 600; background: white; border: 1px solid var(--border); border-radius: 100px; padding: 0.25rem 0.625rem; color: var(--text-secondary); margin-top: 0.75rem; }
+
+    .next-wrap { margin-top: 1.5rem; text-align: right; }
+
+    /* ---- RESULTS SCREEN ---- */
+    #screenResults { display: none; max-width: 840px; margin: 0 auto; padding: 2.5rem 1.25rem 5rem; }
+    #screenResults.active { display: block; }
+
+    .results-header { text-align: center; margin-bottom: 2.5rem; }
+    .results-title { font-size: clamp(1.75rem, 4vw, 2.5rem); font-weight: 400; letter-spacing: -0.02em; margin-bottom: 0.5rem; }
+    .results-sub { font-size: 0.9rem; color: var(--text-muted); }
+
+    /* ---- PROFILE BADGE ---- */
+    .profile-badge { border-radius: var(--radius); padding: 2rem; text-align: center; margin-bottom: 1.5rem; border: 1px solid; }
+    .profile-icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+    .profile-tag { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.7; margin-bottom: 0.25rem; }
+    .profile-name { font-size: 1.5rem; font-weight: 500; letter-spacing: -0.02em; margin-bottom: 0.4rem; }
+    .profile-desc { font-size: 0.875rem; opacity: 0.85; line-height: 1.55; max-width: 380px; margin: 0 auto; }
+
+    /* Profile colors */
+    .profile-high { background: var(--accent-green-light); border-color: #a5d8bc; color: var(--accent-green); }
+    .profile-mid { background: var(--accent-amber-light); border-color: #f0d09b; color: #7a4c10; }
+    .profile-low { background: var(--accent-red-light); border-color: #f4b8b8; color: var(--accent-red); }
+
+    /* ---- STATS GRID ---- */
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.875rem; margin-bottom: 1.5rem; }
+    @media (max-width: 600px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+    .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1rem; text-align: center; }
+    .stat-label { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); margin-bottom: 0.3rem; }
+    .stat-value { font-size: 2rem; font-weight: 500; letter-spacing: -0.03em; }
+    .stat-value.red { color: var(--accent-red); }
+    .stat-value.amber { color: var(--accent-amber); }
+    .stat-value.green { color: var(--accent-green); }
+    .stat-value.indigo { color: var(--accent-indigo); }
+
+    /* ---- GLASS CARD ---- */
+    .glass-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem 1.75rem; box-shadow: var(--shadow); margin-bottom: 1.25rem; }
+    .card-title { font-size: 1rem; font-weight: 600; letter-spacing: -0.01em; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+
+    /* ---- CHART WRAPPER ---- */
+    .chart-wrap { position: relative; max-height: 220px; }
+
+    /* ---- SCARF ---- */
+    .scarf-item { cursor: pointer; border-radius: var(--radius-sm); padding: 0.625rem 0.75rem; transition: background 0.15s; border: 1px solid transparent; }
+    .scarf-item:hover { background: var(--surface); border-color: var(--border); }
+    .scarf-item.active { background: var(--accent-indigo-light); border-color: #c5cdf5; }
+    .scarf-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.825rem; color: var(--text-secondary); margin-bottom: 0.35rem; }
+    .scarf-name { font-weight: 500; }
+    .scarf-val { font-weight: 600; font-size: 0.8rem; }
+    .scarf-track { height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
+    .scarf-fill { height: 100%; width: 0%; transition: width 0.7s cubic-bezier(0.2, 0.8, 0.4, 1.05); border-radius: 3px; }
+
+    .scarf-tooltip { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1rem 1.1rem; margin-top: 0.75rem; display: none; animation: fadeIn 0.2s ease; }
+    .scarf-tooltip.visible { display: block; }
+    .scarf-tooltip-title { font-weight: 600; font-size: 0.875rem; margin-bottom: 0.3rem; }
+    .scarf-tooltip-text { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.6; }
+    .scarf-tooltip-note { font-size: 0.74rem; color: var(--text-muted); margin-top: 0.5rem; border-top: 1px solid var(--border); padding-top: 0.4rem; }
+
+    /* ---- THEORY BLOCK ---- */
+    .theory-card { background: var(--text-primary); color: white; border-radius: var(--radius); padding: 1.5rem 1.75rem; margin-bottom: 1.25rem; }
+    .theory-card-title { font-size: 1rem; font-weight: 600; margin-bottom: 1.1rem; }
+    .theory-item { display: flex; gap: 0.875rem; padding: 0.875rem 0; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .theory-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .theory-item-icon { font-size: 1.25rem; margin-top: 0.1rem; flex-shrink: 0; }
+    .theory-item-title { font-size: 0.875rem; font-weight: 600; color: rgba(255,255,255,0.95); margin-bottom: 0.25rem; }
+    .theory-item-text { font-size: 0.82rem; color: rgba(255,255,255,0.6); line-height: 1.6; }
+
+    /* ---- ACTIONS ---- */
+    .action-row { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; margin-top: 2rem; }
+
+    /* ---- DECISION LOG ---- */
+    .decision-log { margin-bottom: 1.25rem; }
+    .decision-item { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0.875rem 1.1rem; margin-bottom: 0.5rem; display: flex; gap: 0.875rem; align-items: flex-start; }
+    .decision-badge { width: 1.75rem; height: 1.75rem; min-width: 1.75rem; border-radius: 0.375rem; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; }
+    .badge-a { background: var(--accent-red-light); color: var(--accent-red); }
+    .badge-b { background: var(--accent-amber-light); color: var(--accent-amber); }
+    .badge-c { background: var(--accent-green-light); color: var(--accent-green); }
+    .decision-scenario { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.15rem; }
+    .decision-choice { font-size: 0.84rem; color: var(--text-secondary); line-height: 1.45; }
+
+    @media print {
+      header { position: relative; }
+      .action-row { display: none; }
+      .screen { display: none !important; }
+      #screenResults { display: block !important; }
+    }
   </style>
 </head>
-<body class="antialiased">
+<body>
 
-  <header class="sticky top-0 z-50 bg-[#0f0f14] text-white px-6 py-4 flex justify-between items-center border-b border-[#2c2c35]">
-    <div class="font-bold text-xl font-display">Auto<span class="text-indigo-400">Gestión</span> Lab</div>
-    <span class="text-xs bg-[#1e1e2a] px-3 py-1 rounded-full uppercase tracking-wide">Gestión Organizacional</span>
+  <header role="banner">
+    <div class="logo">Auto<span>Gestión</span> Lab</div>
+    <span class="pill">Gestión Organizacional</span>
   </header>
 
-  <!-- INTRO -->
-  <div id="screenIntro" class="min-h-screen flex flex-col items-center justify-center px-4 py-16 text-center">
-    <div class="w-28 h-28 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-5xl shadow-2xl mb-6">🧠</div>
-    <h1 class="text-4xl md:text-5xl font-bold max-w-2xl font-display">Simulador de <span class="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Autogestión Emocional</span></h1>
-    <p class="text-gray-500 max-w-md mt-4">3 escenarios reales del entorno laboral. Descubre cómo reaccionas ante el estrés y la presión.</p>
-    <div class="flex flex-wrap gap-2 justify-center mt-6">
-      <span class="bg-white border px-3 py-1 rounded-full text-xs">🧠 Amygdala Hijack</span>
-      <span class="bg-white border px-3 py-1 rounded-full text-xs">🎯 Modelo SCARF</span>
-      <span class="bg-white border px-3 py-1 rounded-full text-xs">💡 Modelo ABC</span>
+  <!-- ========== INTRO ========== -->
+  <div id="screenIntro" class="active" role="main">
+    <div class="intro-icon" aria-hidden="true">🧠</div>
+    <h1 class="intro-title serif">Simulador de <em>Autogestión Emocional</em></h1>
+    <p class="intro-desc">3 escenarios reales del entorno laboral. Descubre cómo reaccionas ante el estrés, la injusticia y la presión social.</p>
+    <div class="tag-row" aria-label="Conceptos cubiertos">
+      <span class="tag">Amygdala Hijack</span>
+      <span class="tag">Modelo SCARF</span>
+      <span class="tag">Modelo ABC</span>
+      <span class="tag">Inteligencia Emocional</span>
     </div>
-    <button onclick="startSimulator()" class="btn-primary mt-8 text-lg px-8 py-3">Comenzar simulación →</button>
+    <button onclick="startSimulator()" class="btn-primary" aria-label="Iniciar simulación">
+      Comenzar simulación <span aria-hidden="true">→</span>
+    </button>
   </div>
 
-  <!-- ESCENARIOS -->
-  <div id="screenScenarios" class="hidden">
-    <div class="max-w-3xl mx-auto px-4 pt-8">
-      <div class="mb-6">
-        <div class="flex justify-between text-sm text-gray-500 mb-1">
-          <span id="progressLabel">Escenario 1 de 3</span>
-          <span id="progressPercent">0%</span>
-        </div>
-        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  <!-- ========== ESCENARIOS ========== -->
+  <div id="screenScenarios" role="main">
+    <div class="progress-wrap" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="progressRegion">
+      <div class="progress-meta">
+        <span class="progress-label" id="progressLabel" aria-live="polite">Escenario 1 de 3</span>
+        <span class="progress-pct" id="progressPct">0%</span>
       </div>
-      <div id="scenarioContainer"></div>
+      <div class="progress-track"><div class="progress-bar" id="progressBar"></div></div>
     </div>
+    <div id="scenarioContainer" aria-live="polite"></div>
   </div>
 
-  <!-- RESULTADOS -->
-  <div id="screenResults" class="hidden max-w-4xl mx-auto px-4 py-12">
-    <div class="text-center mb-10">
-      <h2 class="text-3xl font-display font-bold">Tu Perfil de Autogestión</h2>
-      <p class="text-gray-500">Basado en tus 3 decisiones — neurociencia y comportamiento organizacional</p>
-    </div>
-    <div class="badge-profile mb-8" id="profileBadge">
-      <div class="text-4xl" id="profileIcon">🧘</div>
-      <div class="text-xs uppercase tracking-wider opacity-80 mt-1">Tu perfil dominante</div>
-      <div class="text-xl font-bold" id="profileTitle">—</div>
-      <div class="text-sm opacity-90" id="profileDesc">—</div>
+  <!-- ========== RESULTADOS ========== -->
+  <div id="screenResults" role="main" aria-label="Resultados del simulador">
+    <div class="results-header">
+      <h2 class="results-title serif">Tu perfil de autogestión</h2>
+      <p class="results-sub">Basado en tus 3 decisiones — neurociencia y comportamiento organizacional</p>
     </div>
 
-    <div class="grid md:grid-cols-4 gap-4 mb-8">
-      <div class="glass-card p-5 text-center"><div class="text-gray-500 text-xs uppercase">Reactiva (A)</div><div class="text-3xl font-bold text-red-600" id="statA">0</div></div>
-      <div class="glass-card p-5 text-center"><div class="text-gray-500 text-xs uppercase">Evasiva (B)</div><div class="text-3xl font-bold text-amber-600" id="statB">0</div></div>
-      <div class="glass-card p-5 text-center"><div class="text-gray-500 text-xs uppercase">Regulada (C)</div><div class="text-3xl font-bold text-emerald-600" id="statC">0</div></div>
-      <div class="glass-card p-5 text-center"><div class="text-gray-500 text-xs uppercase">Índice IE</div><div class="text-3xl font-bold text-emerald-600" id="ieIndex">0</div></div>
+    <div class="profile-badge" id="profileBadge" role="region" aria-label="Perfil dominante">
+      <div class="profile-icon" id="profileIcon" aria-hidden="true">🧘</div>
+      <div class="profile-tag">Tu perfil dominante</div>
+      <div class="profile-name" id="profileName">—</div>
+      <div class="profile-desc" id="profileDesc">—</div>
     </div>
 
-    <div class="glass-card p-6 mb-8"><h3 class="font-bold text-lg mb-4">⚡ Distribución de respuestas</h3><canvas id="responseChart" height="200"></canvas></div>
-
-    <div class="glass-card p-6 mb-8">
-      <h3 class="font-bold text-lg mb-2">🎯 Dominios SCARF activados</h3>
-      <p class="text-sm text-gray-500 mb-3">El modelo SCARF (Rock, 2008) identifica 5 dominios sociales que el cerebro trata como recompensas o amenazas. <strong class="text-gray-700">Haz clic en cada dominio</strong> para entenderlo mejor.</p>
-      <div class="space-y-3" id="scarfList">
-        <div class="scarf-item" data-domain="status"><div class="flex justify-between text-sm"><span>📊 Estatus (posición relativa frente a otros)</span><span id="scarfStatusVal">0%</span></div><div class="scarf-bar"><div class="scarf-fill bg-red-500" id="scarfStatus"></div></div></div>
-        <div class="scarf-item" data-domain="certainty"><div class="flex justify-between text-sm"><span>🔮 Certeza (capacidad de predecir el futuro)</span><span id="scarfCertaintyVal">0%</span></div><div class="scarf-bar"><div class="scarf-fill bg-amber-500" id="scarfCertainty"></div></div></div>
-        <div class="scarf-item" data-domain="autonomy"><div class="flex justify-between text-sm"><span>🎮 Autonomía (sensación de control sobre el entorno)</span><span id="scarfAutonomyVal">0%</span></div><div class="scarf-bar"><div class="scarf-fill bg-blue-500" id="scarfAutonomy"></div></div></div>
-        <div class="scarf-item" data-domain="relatedness"><div class="flex justify-between text-sm"><span>🤝 Relación (sensación de pertenencia / confianza)</span><span id="scarfRelationVal">0%</span></div><div class="scarf-bar"><div class="scarf-fill bg-purple-500" id="scarfRelation"></div></div></div>
-        <div class="scarf-item" data-domain="fairness"><div class="flex justify-between text-sm"><span>⚖️ Justicia (percepción de intercambio justo)</span><span id="scarfFairVal">0%</span></div><div class="scarf-bar"><div class="scarf-fill bg-teal-500" id="scarfFair"></div></div></div>
-      </div>
-      <div id="scarfTooltip" class="tooltip-card hidden mt-4"></div>
-      <p class="text-xs text-gray-400 mt-4 text-center">⚠️ Porcentajes altos = mayor activación de amenaza en ese dominio según tus decisiones.</p>
+    <div class="stats-grid" role="region" aria-label="Estadísticas de respuestas">
+      <div class="stat-card"><div class="stat-label">Reactiva (A)</div><div class="stat-value red" id="statA">0</div></div>
+      <div class="stat-card"><div class="stat-label">Evasiva (B)</div><div class="stat-value amber" id="statB">0</div></div>
+      <div class="stat-card"><div class="stat-label">Regulada (C)</div><div class="stat-value green" id="statC">0</div></div>
+      <div class="stat-card"><div class="stat-label">Índice IE</div><div class="stat-value indigo" id="ieIndex">0%</div></div>
     </div>
 
-    <div class="bg-gray-900 text-white rounded-2xl p-6 mb-8"><h3 class="font-bold text-lg flex gap-2">📚 Teoría que explica tu resultado</h3><div id="theoryContent" class="mt-4 space-y-4"></div></div>
-    <div class="flex justify-center gap-4"><button onclick="resetSimulator()" class="btn-primary">↺ Reiniciar simulación</button><button onclick="window.print()" class="btn-outline">Imprimir reporte</button></div>
+    <div class="glass-card" role="region" aria-label="Historial de decisiones">
+      <div class="card-title">📋 Mis decisiones</div>
+      <div class="decision-log" id="decisionLog"></div>
+    </div>
+
+    <div class="glass-card" role="region" aria-label="Distribución de respuestas">
+      <div class="card-title">⚡ Distribución de respuestas</div>
+      <div class="chart-wrap"><canvas id="responseChart" aria-label="Gráfico de barras con distribución de respuestas"></canvas></div>
+    </div>
+
+    <div class="glass-card" role="region" aria-label="Dominios SCARF activados">
+      <div class="card-title">🎯 Dominios SCARF activados</div>
+      <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.55;">El modelo SCARF (Rock, 2008) identifica 5 dominios sociales que el cerebro procesa como recompensas o amenazas. <strong style="color: var(--text-secondary);">Haz clic en cada dominio</strong> para entender qué significa el porcentaje.</p>
+      <div id="scarfList" role="list"></div>
+      <div class="scarf-tooltip" id="scarfTooltip" role="region" aria-live="polite"></div>
+      <p style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.75rem; text-align: center;">Porcentajes altos = mayor activación de amenaza en ese dominio según tus elecciones.</p>
+    </div>
+
+    <div class="theory-card" role="region" aria-label="Marco teórico">
+      <div class="theory-card-title">📚 Teoría que explica tu resultado</div>
+      <div id="theoryContent"></div>
+    </div>
+
+    <div class="action-row">
+      <button onclick="resetSimulator()" class="btn-primary">↺ Reiniciar simulación</button>
+      <button onclick="window.print()" class="btn-secondary">Imprimir reporte</button>
+    </div>
   </div>
 
   <script>
-    // ESCENARIOS ACTUALIZADOS
+    /* ============================================================
+       DATOS
+    ============================================================ */
+
     const SCENARIOS = [
       {
-        id: 1, title: "El gaslighting en las prácticas",
+        id: 1,
+        title: "El gaslighting en las prácticas",
         context: "Contexto: Estás en tu primer mes de prácticas en una corporación. Tu supervisor te pidió un reporte de mercado para hoy.",
-        situation: "Entras a la oficina de tu jefe y le entregas el reporte. Él lo mira apenas 5 segundos y, delante de otros practicantes, dice: 'Te pedí esto hace dos días y lo que me entregas es básicamente un copy-paste de la web. ¿En la universidad no les enseñan a analizar datos o simplemente no te interesa el puesto?' Tú sabes que dedicaste 10 horas al análisis y que él recién te lo pidió ayer por la tarde. Sientes un vacío en el estómago y una presión en el pecho.",
-        scarfDomain: "Estatus",
+        situation: "Entras a la oficina de tu jefe y le entregas el reporte. Él lo mira apenas 5 segundos y, delante de otros practicantes, dice: «Te pedí esto hace dos días y lo que me entregas es básicamente un copy-paste de la web. ¿En la universidad no les enseñan a analizar datos, o simplemente no te interesa el puesto?» Tú sabes que dedicaste 10 horas al análisis y que él recién te lo pidió ayer por la tarde. Sientes un nudo en el estómago y una presión en el pecho.",
+        symptom: "Cuerpo en alerta: nudo en el estómago, presión en el pecho, mente en blanco.",
+        scarfDomain: "Dominio SCARF: Estatus",
         options: [
-          { key: "A", label: "Ataque", emoji: "⚡", text: "Eso no es cierto. Usted me lo pidió ayer a las 4 p.m., y mi análisis es profundo. Quizás debería leerlo completo antes de juzgar mi trabajo.", feedback: "Has caído en la trampa de la defensiva. Aunque tengas razón, atacar al jefe frente a otros se percibe como falta de inteligencia política. Tu amígdala acaba de secuestrar tu corteza prefrontal.", theory: "Secuestro de la Amígdala - Goleman (1995)", type: "a" },
-          { key: "B", label: "Huida", emoji: "🚪", text: "Perdón... tiene razón. Debo esforzarme más. Lo vuelvo a hacer de cero ahora mismo. (Sales de la oficina sintiéndote incapaz.)", feedback: "Has validado una crítica injusta. Esto daña tu autoeficacia y enseña al entorno que pueden sobrepasarte sin resistencia profesional.", theory: "Modelo ABC - Ellis (1955): la creencia catastrofista genera la huida", type: "b" },
-          { key: "C", label: "Regulación", emoji: "🎯", text: "Entiendo que el nivel de profundidad es prioritario. Para alinearnos, ¿podría señalarme qué sección específica considera que le falta rigor técnico? Así podré ajustar el enfoque de inmediato.", feedback: "Has usado curiosidad táctica. Mantienes tu estatus, proteges tu autonomía y obligas al otro a salir del ataque personal para volver al dato técnico. Esto es inteligencia emocional aplicada.", theory: "IE Aplicada - Salovey y Mayer + SCARF", type: "c" }
-        ] },
+          {
+            key: "A",
+            label: "Reactiva",
+            text: "«Eso no es cierto. Usted me lo pidió ayer a las 4 p.m., y mi análisis es profundo. Quizás debería leerlo completo antes de juzgar mi trabajo.»",
+            feedback: "Has caído en la trampa de la defensiva. Aunque tengas razón, atacar al supervisor frente a otros se percibe como falta de inteligencia política. La amígdala acaba de secuestrar tu corteza prefrontal y priorizas el conflicto sobre el resultado.",
+            theory: "Secuestro de la Amígdala — Goleman (1995)",
+            type: "a"
+          },
+          {
+            key: "B",
+            label: "Evasiva",
+            text: "«Perdón… tiene razón. Debo esforzarme más. Lo vuelvo a hacer de cero ahora mismo.» (Sales de la oficina sintiéndote incapaz.)",
+            feedback: "Has validado una crítica injusta sin evidencia. Esto daña tu autoeficacia y enseña al entorno que pueden sobrepasarte sin resistencia profesional. La creencia catastrofista ('no sirvo para esto') reemplazó la evaluación racional del hecho.",
+            theory: "Modelo ABC — Ellis (1962): la creencia disfuncional genera la huida",
+            type: "b"
+          },
+          {
+            key: "C",
+            label: "Regulada",
+            text: "«Entiendo que el nivel de profundidad es prioritario. Para alinearnos, ¿podría señalarme qué sección considera que le falta rigor técnico? Así ajusto el enfoque de inmediato.»",
+            feedback: "Has usado curiosidad táctica. Mantienes tu estatus, proteges tu autonomía y obligas al interlocutor a salir del ataque personal para volver al dato técnico. Esto es inteligencia emocional aplicada bajo presión social.",
+            theory: "IE Aplicada — Salovey & Mayer + Modelo SCARF (Rock, 2008)",
+            type: "c"
+          }
+        ]
+      },
       {
-        id: 2, title: "La traición en el trabajo grupal",
-        context: "Contexto: Curso de 'Gerencia Estratégica'. El trabajo final vale el 40% de la nota.",
-        situation: "Faltan 2 horas para subir el archivo al sistema de la universidad. Uno de tus compañeros, que es tu amigo, te escribe: 'Oye, redujé la parte de \"Análisis de Riesgos\" porque me pareció que sobraba y ya subí la versión final. No me dio tiempo de avisarte, pero confía en mí, quedó mejor así.' Tú pasaste noches enteras redactando esa sección pues necesitabas una buena calificación en ese curso y, además considerabas que esa sección era muy relevante para sustentar el trabajo grupal. Sientes calor en la cara y tus manos empiezan a sudar.",
-        scarfDomain: "Justicia / Autonomía",
+        id: 2,
+        title: "La traición en el trabajo grupal",
+        context: "Contexto: Curso de 'Gerencia Estratégica'. El trabajo final vale el 40% de la nota. Faltan 2 horas para el cierre del sistema.",
+        situation: "Uno de tus compañeros —que considerabas tu amigo— te escribe: «Oye, reduje la parte de 'Análisis de Riesgos' porque me pareció que sobraba y ya subí la versión final. No me dio tiempo avisarte, pero confía en mí, quedó mejor así.» Tú pasaste noches redactando esa sección, que era fundamental para sustentar el argumento del grupo. Sientes calor en la cara y tus manos empiezan a sudar.",
+        symptom: "Cuerpo en alerta: calor en el rostro, manos sudorosas, pensamiento acelerado.",
+        scarfDomain: "Dominios SCARF: Justicia y Autonomía",
         options: [
-          { key: "A", label: "Ataque", emoji: "⚡", text: "Llamas por teléfono y le gritas: '¡Eres un irresponsable! ¿Quién te crees para borrar mi trabajo sin preguntar? Si bajamos la nota, te voy a reportar con el profesor.'", feedback: "Has permitido que la amígdala destruya la cohesión del equipo justo antes de un hito crítico. El conflicto ahora es personal, no operativo. Pierdes tiempo valioso en las 2 horas restantes.", theory: "Seguridad Psicológica - Edmondson (1999)", type: "a" },
-          { key: "B", label: "Evasión", emoji: "🚪", text: "No dices nada. Te resignas y piensas que, bueno, al menos ya se subió. Decides que no volverás a trabajar con él, pero te guardas el resentimiento.", feedback: "Estás permitiendo una posible afectación a un tema de gran importancia para ti. La complacencia ante el error ajeno es una falla de control. El resentimiento acumulado destruye el capital relacional.", theory: "Modelo ABC - Ellis: resignación disfuncional", type: "b" },
-          { key: "C", label: "Regulación", emoji: "🎯", text: "Escribes: 'Esa sección era fundamental para el sustento estratégico. Por favor, compárteme el acceso ahora mismo para reintegrar los puntos clave antes de que cierre el sistema. Después de la entrega nos reunimos para coordinar cómo manejar las ediciones finales.'", feedback: "Has priorizado el objetivo grupal. Pusiste un límite claro sin quemar el puente comunicativo. Esto es gestión de intereses bajo presión.", theory: "SCARF: restauras Justicia + Autonomía", type: "c" }
-        ] },
+          {
+            key: "A",
+            label: "Reactiva",
+            text: "Lo llamas de inmediato y le dices: «¡Eres un irresponsable! ¿Quién te dio permiso de borrar mi trabajo sin preguntar? Si bajamos la nota, te reporto con el profesor.»",
+            feedback: "Has destruido la cohesión del equipo justo antes de un hito crítico. El conflicto pasa de operativo a personal. Desperdicias las 2 horas restantes en la confrontación en lugar de solucionar el problema académico.",
+            theory: "Seguridad Psicológica — Edmondson (1999)",
+            type: "a"
+          },
+          {
+            key: "B",
+            label: "Evasiva",
+            text: "No dices nada. Te resignas pensando que «ya fue». Decides que no volverás a trabajar con él, pero te guardas el resentimiento y esa noche no puedes dormir.",
+            feedback: "Estás permitiendo una afectación directa a tu calificación sin actuar. La complacencia ante el error ajeno es una falla de autogestión. El resentimiento silencioso destruye el capital relacional y no resuelve el problema académico.",
+            theory: "Modelo ABC — Ellis: resignación como creencia disfuncional",
+            type: "b"
+          },
+          {
+            key: "C",
+            label: "Regulada",
+            text: "Le escribes: «Esa sección era clave para el sustento estratégico. Compárteme el acceso ahora para reintegrar los puntos críticos antes de que cierre el sistema. Después de la entrega coordinamos cómo manejar los cambios en equipo.»",
+            feedback: "Has priorizado el objetivo del grupo. Pusiste un límite claro sin quemar el puente comunicativo. Separas el problema urgente (nota académica) del problema relacional (confianza), que atenderás en otro momento. Esto es gestión de intereses bajo presión.",
+            theory: "SCARF: restauras los dominios Justicia y Autonomía",
+            type: "c"
+          }
+        ]
+      },
       {
-        id: 3, title: "La incertidumbre del 'tenemos que hablar'",
-        context: "Contexto: Evaluación de desempeño o cierre de ciclo de prácticas.",
-        situation: "Tu jefe te envía un mensaje por Teams el jueves a las 5:00 p.m.: 'Hola, mañana a primera hora necesito que nos reunamos. Hay algunos temas de tu desempeño y de tu continuidad en el área que no me están cuadrando. Nos vemos a las 8:00 a.m.' Cierra su sesión y se va. No tienes más contexto. Empiezas a sudar frío y dejas de escuchar lo que pasa a tu alrededor.",
-        scarfDomain: "Certeza",
+        id: 3,
+        title: "La incertidumbre del «tenemos que hablar»",
+        context: "Contexto: Cierre de ciclo de prácticas o evaluación de desempeño.",
+        situation: "Tu jefe te envía un mensaje por Teams el jueves a las 5:00 p.m.: «Hola, mañana a primera hora necesito que nos reunamos. Hay algunos temas de tu desempeño y de tu continuidad en el área que no me están cuadrando. Nos vemos a las 8:00 a.m.» Cierra su sesión y se va. No tienes más contexto. Empiezas a sudar frío y dejas de escuchar lo que pasa a tu alrededor.",
+        symptom: "Cuerpo en alerta: sudor frío, disociación sensorial, mente catastrofizando escenarios.",
+        scarfDomain: "Dominio SCARF: Certeza",
         options: [
-          { key: "A", label: "Catastrofizar", emoji: "⚡", text: "Pasas la noche pensando que te van a despedir. Buscas culpables y piensas: 'Seguro fue por el error del reporte de la semana pasada'. Llegas a la reunión a la defensiva y ojeroso.", feedback: "Estás en secuestro emocional crónico. El cortisol bloquea tu neocórtex. Si mañana te piden una solución creativa, no podrás darla porque tu cerebro estuvo en modo huida toda la noche.", theory: "Amygdala Hijack - Goleman + SCARF", type: "a" },
-          { key: "B", label: "Evitar", emoji: "🚪", text: "Te pones a hacer otras tareas mecánicas para no pensar. Evitas hablar con nadie y te vas a dormir temprano con una sensación de opresión en el pecho.", feedback: "La evitación amplifica la ansiedad. Tu cerebro sigue procesando la amenaza en segundo plano, sin datos reales para calmarse. Llegas igual de tenso a la reunión.", theory: "Modelo ABC - Ellis: evitar no cambia la creencia", type: "b" },
-          { key: "C", label: "Regulación", emoji: "🎯", text: "Aplicas una pausa. Te preguntas: ¿Qué evidencia real tengo de un mal desempeño? Envías un correo breve: 'Estaré ahí. Para llegar preparado/a, ¿podría indicarme en qué KPIs o proyectos específicos debemos enfocarnos?'", feedback: "Estás gestionando la amenaza centrándote en las certrezas. Al pedir información, obligas a tu cerebro a pasar del modo pánico al modo planificación. Eso es regulación ejecutiva activa.", theory: "SCARF: reduces amenaza a Certeza", type: "c" }
-        ] }
+          {
+            key: "A",
+            label: "Catastrófica",
+            text: "Pasas la noche buscando culpables y pensando «seguro fue por el reporte de la semana pasada». Llegas a la reunión a la defensiva, sin dormir, con las respuestas preparadas para justificarte.",
+            feedback: "Estás en un secuestro emocional sostenido. El cortisol elevado bloquea el neocórtex durante horas. Si mañana necesitas dar soluciones creativas o hacer escucha activa, tu capacidad cognitiva ya estará deteriorada por el estrés anticipatorio.",
+            theory: "Amygdala Hijack crónico — Goleman + cortisol y cognición (LeDoux, 1996)",
+            type: "a"
+          },
+          {
+            key: "B",
+            label: "Evasiva",
+            text: "Te pones a hacer tareas mecánicas para no pensar en eso. Evitas hablar con alguien y te vas a dormir temprano con una sensación de opresión en el pecho.",
+            feedback: "La evitación no neutraliza la amenaza: tu cerebro sigue procesando en segundo plano sin datos reales que lo calmen. Llegas igual de tenso a la reunión, y sin información que prepare tu respuesta. La evitación amplifica la ansiedad a largo plazo.",
+            theory: "Modelo ABC — Ellis: evitar no modifica la creencia automática",
+            type: "b"
+          },
+          {
+            key: "C",
+            label: "Regulada",
+            text: "Respiras. Te preguntas: «¿Qué evidencia real tengo de un mal desempeño?» Envías un mensaje breve: «Estaré ahí. Para llegar preparado/a, ¿podría indicarme en qué KPIs o proyectos específicos debemos enfocarnos?»",
+            feedback: "Has convertido la amenaza en un problema resoluble. Al pedir información, tu cerebro pasa del modo pánico al modo planificación. Reduces el dominio Certeza a través de datos reales, no de suposiciones. Eso es regulación ejecutiva activa.",
+            theory: "SCARF: reduces la amenaza al dominio Certeza — Rock (2008)",
+            type: "c"
+          }
+        ]
+      }
     ];
 
-    const SCARF_WEIGHTS = { "1A":[90,30,60,50,70], "1B":[80,40,30,40,60], "1C":[20,20,20,20,20], "2A":[50,40,70,80,90], "2B":[50,45,65,70,85], "2C":[20,20,20,20,20], "3A":[30,95,50,40,40], "3B":[30,85,45,35,35], "3C":[20,20,20,20,20] };
-    const PROFILES = { "CCC": { icon: "🧘", title: "Líder Regulado", desc: "Alta capacidad de autorregulación emocional. Tu corteza prefrontal mantiene el control incluso bajo presión.", theoryKey: "high" }, "default": { icon: "🔥", title: "En Proceso de Autogestión", desc: "Tus respuestas muestran patrones reactivos o evasivos. La buena noticia: la regulación emocional se entrena.", theoryKey: "low" } };
-    const THEORY_BLOCKS = { high: [ { icon: "🧠", title: "Corteza Prefrontal Activa", text: "Mantienes activo tu centro ejecutivo incluso bajo presión. No experimentas el secuestro de la amígdala de forma crónica." }, { icon: "🎯", title: "SCARF Equilibrado", text: "Los cinco dominios sociales no representan amenazas constantes para ti. Liberas energía cognitiva para decisiones estratégicas." } ], low: [ { icon: "🔥", title: "Secuestro de la Amígdala", text: "Tu sistema límbico responde antes que la corteza prefrontal. Es normal, pero puede entrenarse." }, { icon: "📋", title: "Modelo ABC como Herramienta", text: "Antes de responder, identifica: ¿Qué hecho real? ¿Qué pensamiento automático? ¿Esa creencia tiene evidencia real?" } ] };
-
-    const SCARF_DESCRIPTIONS = {
-      status: { title: "📊 Estatus", color: "red", text: "El estatus se refiere a tu posición relativa frente a los demás. Cuando es amenazado (críticas, comparaciones desfavorables, falta de reconocimiento), el cerebro activa la misma red neuronal que ante el dolor físico. Un porcentaje alto aquí indica que percibes ataques a tu valor profesional." },
-      certainty: { title: "🔮 Certeza", color: "amber", text: "La certeza es la capacidad de predecir lo que sucederá. La ambigüedad o la falta de información activan la amígdala y generan ansiedad. Un porcentaje alto significa que la incertidumbre te genera una fuerte respuesta de estrés." },
-      autonomy: { title: "🎮 Autonomía", color: "blue", text: "La autonomía es la sensación de control sobre tu entorno y decisiones. Cuando otros toman decisiones por ti o interfieren en tu trabajo, se percibe como una amenaza. Porcentajes altos indican que valoras profundamente tu capacidad de decisión." },
-      relatedness: { title: "🤝 Relación", color: "purple", text: "La relación es la sensación de pertenencia y confianza con los demás. El cerebro distingue entre 'amigo' y 'enemigo'. Un porcentaje alto sugiere que percibes amenazas en la confianza o lealtad de tus compañeros o superiores." },
-      fairness: { title: "⚖️ Justicia", color: "teal", text: "La justicia es la percepción de intercambios equitativos. Cuando sientes que te tratan de manera injusta o desigual, se activa la ínsula anterior (relacionada con el asco). Porcentajes altos indican hipersensibilidad a la inequidad." }
+    /* Pesos SCARF por escenario y respuesta [Estatus, Certeza, Autonomía, Relación, Justicia] */
+    const SCARF_WEIGHTS = {
+      "1A": [92, 30, 60, 48, 68],
+      "1B": [78, 42, 32, 42, 58],
+      "1C": [18, 18, 18, 18, 18],
+      "2A": [52, 38, 72, 82, 92],
+      "2B": [48, 44, 68, 72, 84],
+      "2C": [18, 18, 18, 18, 18],
+      "3A": [28, 96, 52, 38, 38],
+      "3B": [28, 86, 44, 34, 34],
+      "3C": [18, 18, 18, 18, 18]
     };
 
-    let currentIndex = 0, answers = [], chartInstance = null;
+    const SCARF_DOMAINS = [
+      {
+        key: "status",
+        name: "Estatus",
+        icon: "📊",
+        desc: "Posición relativa frente a otros",
+        color: "#b83b3b",
+        colorBg: "#fdf0f0",
+        text: "El estatus se refiere a tu posición percibida frente a los demás. Cuando es amenazado —por críticas públicas, comparaciones desfavorables o falta de reconocimiento— el cerebro activa la misma red neuronal que ante el dolor físico. Un porcentaje alto indica que percibiste ataques a tu valor profesional y reaccionaste desde esa amenaza.",
+        elemFill: "scarfFill_status",
+        elemVal: "scarfVal_status"
+      },
+      {
+        key: "certainty",
+        name: "Certeza",
+        icon: "🔮",
+        desc: "Capacidad de predecir el futuro inmediato",
+        color: "#c97d20",
+        colorBg: "#fef3e2",
+        text: "La certeza es la capacidad de predecir lo que ocurrirá. La ambigüedad y la falta de información activan la amígdala y generan ansiedad de forma automática. Un porcentaje alto significa que la incertidumbre disparó una fuerte respuesta de estrés, haciendo difícil actuar con claridad.",
+        elemFill: "scarfFill_certainty",
+        elemVal: "scarfVal_certainty"
+      },
+      {
+        key: "autonomy",
+        name: "Autonomía",
+        icon: "🎮",
+        desc: "Sensación de control sobre el entorno",
+        color: "#185fa5",
+        colorBg: "#e6f1fb",
+        text: "La autonomía es la sensación de tener control sobre tus decisiones y entorno. Cuando otros actúan sobre tu trabajo sin consultarte, el cerebro lo percibe como una amenaza a la identidad. Porcentajes altos indican que valoras profundamente tu capacidad de decisión y reaccionaste con intensidad ante su pérdida.",
+        elemFill: "scarfFill_autonomy",
+        elemVal: "scarfVal_autonomy"
+      },
+      {
+        key: "relatedness",
+        name: "Relación",
+        icon: "🤝",
+        desc: "Sensación de pertenencia y confianza",
+        color: "#6b4ac4",
+        colorBg: "#f0edfb",
+        text: "La relación es la sensación de pertenencia y confianza con los demás. El cerebro distingue entre «amigo» y «enemigo» en milisegundos. Un porcentaje alto sugiere que percibiste una ruptura de confianza o lealtad en tus relaciones laborales, lo que activó respuestas defensivas.",
+        elemFill: "scarfFill_relatedness",
+        elemVal: "scarfVal_relatedness"
+      },
+      {
+        key: "fairness",
+        name: "Justicia",
+        icon: "⚖️",
+        desc: "Percepción de intercambio justo",
+        color: "#2a7a4b",
+        colorBg: "#e8f5ee",
+        text: "La justicia es la percepción de intercambios equitativos. Ante la inequidad, se activa la ínsula anterior —asociada con el asco moral— generando reacciones intensas incluso cuando el costo de rechazar es alto. Porcentajes altos indican hipersensibilidad a la injusticia como detonador emocional.",
+        elemFill: "scarfFill_fairness",
+        elemVal: "scarfVal_fairness"
+      }
+    ];
 
-    function showScreen(id) { document.getElementById('screenIntro').classList.add('hidden'); document.getElementById('screenScenarios').classList.add('hidden'); document.getElementById('screenResults').classList.add('hidden'); document.getElementById(id).classList.remove('hidden'); }
-    function startSimulator() { currentIndex = 0; answers = []; showScreen('screenScenarios'); renderScenario(); }
-    function resetSimulator() { if (chartInstance) chartInstance.destroy(); startSimulator(); }
-    function updateProgress() { let pct = (currentIndex / SCENARIOS.length) * 100; document.getElementById('progressFill').style.width = pct + '%'; document.getElementById('progressPercent').innerText = Math.round(pct) + '%'; document.getElementById('progressLabel').innerText = `Escenario ${currentIndex+1} de ${SCENARIOS.length}`; }
+    /* Perfiles ampliados */
+    const PROFILES = {
+      "CCC": {
+        icon: "🧘",
+        name: "Líder con alta regulación emocional",
+        desc: "Tu corteza prefrontal mantuvo el control en los tres escenarios. No permitiste el secuestro de la amígdala. Usas la pausa, la curiosidad táctica y la distinción entre emoción e interpretación como herramientas naturales.",
+        profileClass: "profile-high",
+        theoryKey: "high"
+      },
+      "CCB": {
+        icon: "💡",
+        name: "Regulación con zona de evasión ocasional",
+        desc: "Tienes alta capacidad de regulación en la mayoría de contextos, pero tiendes a evitar el conflicto relacional cuando la presión social es alta. Tu siguiente nivel: aprender a sostener la incomodidad del desacuerdo sin ceder.",
+        profileClass: "profile-high",
+        theoryKey: "partial"
+      },
+      "CCA": {
+        icon: "⚡",
+        name: "Regulación con reactividad situacional",
+        desc: "En dos de tres escenarios mostraste una respuesta regulada, pero una situación específica detonó tu reactividad. Identifica qué dominio SCARF particular te activa más y trabaja en él.",
+        profileClass: "profile-mid",
+        theoryKey: "partial"
+      },
+      "CBC": {
+        icon: "💡",
+        name: "Perfil mixto con tendencia a la evasión",
+        desc: "Alternas entre regulación y evasión. Reconoces cuándo debes regular, pero en situaciones de tensión interpersonal prefieres evitar el conflicto. La evasión es costosa a largo plazo: acumula resentimiento y enseña al entorno que puedes ser ignorado.",
+        profileClass: "profile-mid",
+        theoryKey: "partial"
+      },
+      "default": {
+        icon: "🔥",
+        name: "En construcción de autogestión",
+        desc: "Tus respuestas muestran patrones reactivos o evasivos predominantes. La buena noticia: la regulación emocional no es un rasgo innato, es una habilidad que se entrena. Los primeros pasos son la pausa, la nominalización de emociones y el cuestionamiento de creencias automáticas.",
+        profileClass: "profile-low",
+        theoryKey: "low"
+      }
+    };
 
+    const THEORY_BLOCKS = {
+      high: [
+        { icon: "🧠", title: "Corteza prefrontal activa", text: "Mantuviste activo tu centro ejecutivo bajo presión. No experimentaste el secuestro de la amígdala de forma aguda. Esto te permite generar opciones creativas incluso cuando el cerebro límbico envía señales de alarma." },
+        { icon: "🎯", title: "SCARF equilibrado", text: "Los cinco dominios sociales no representaron amenazas paralizantes en tus decisiones. Liberaste energía cognitiva para tomar decisiones estratégicas en lugar de gastarla en autoprotección defensiva." }
+      ],
+      partial: [
+        { icon: "🧠", title: "Regulación selectiva", text: "Tienes capacidad real de regulación emocional, pero ciertos dominios SCARF (revisa el mapa de arriba) te activan más que otros. La autoconciencia sobre tus detonadores específicos es el primer paso para intervenir en ellos." },
+        { icon: "📋", title: "Modelo ABC como ajuste fino", text: "Ante la situación que no gestionaste bien, aplica retroactivamente el ABC de Ellis: identifica el hecho real (A), la creencia automática que generaste (B) y la consecuencia conductual (C). Luego disputa la creencia." }
+      ],
+      low: [
+        { icon: "🔥", title: "Secuestro de la amígdala", text: "Tu sistema límbico respondió antes que la corteza prefrontal en la mayoría de situaciones. Esto no es un defecto de carácter: es la forma en que el cerebro procesa la amenaza social. Pero puede entrenarse con práctica sostenida." },
+        { icon: "📋", title: "Modelo ABC como herramienta de intervención", text: "Antes de responder en situaciones de presión, practica identificar: ¿Cuál es el hecho real (A)? ¿Qué pensamiento automático generé (B)? ¿Esa creencia tiene evidencia real o es una interpretación catastrofista? La disputa de B es donde está el cambio." },
+        { icon: "🎯", title: "SCARF: conoce tus dominios de alarma", text: "Los dominios con porcentajes más altos en tu mapa son tus detonadores principales. Una estrategia de regulación efectiva empieza por conocer cuál de los cinco dominios activa tu respuesta más intensa y diseñar rutinas específicas para ese contexto." }
+      ]
+    };
+
+    /* ============================================================
+       ESTADO
+    ============================================================ */
+    let currentIndex = 0;
+    let answers = [];
+    let chartInstance = null;
+
+    /* ============================================================
+       NAVEGACIÓN DE PANTALLAS
+    ============================================================ */
+    function showScreen(id) {
+      ["screenIntro", "screenScenarios", "screenResults"].forEach(s => {
+        const el = document.getElementById(s);
+        el.classList.remove("active");
+      });
+      document.getElementById(id).classList.add("active");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    /* ============================================================
+       INICIO Y RESET
+    ============================================================ */
+    function startSimulator() {
+      currentIndex = 0;
+      answers = [];
+      if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+      showScreen("screenScenarios");
+      renderScenario();
+    }
+
+    function resetSimulator() {
+      startSimulator();
+    }
+
+    /* ============================================================
+       PROGRESO
+    ============================================================ */
+    function updateProgress() {
+      const pct = Math.round((currentIndex / SCENARIOS.length) * 100);
+      document.getElementById("progressBar").style.width = pct + "%";
+      document.getElementById("progressPct").textContent = pct + "%";
+      document.getElementById("progressLabel").textContent = `Escenario ${currentIndex + 1} de ${SCENARIOS.length}`;
+      const region = document.getElementById("progressRegion");
+      region.setAttribute("aria-valuenow", pct);
+    }
+
+    /* ============================================================
+       RENDERIZAR ESCENARIO
+    ============================================================ */
     function renderScenario() {
       updateProgress();
       const s = SCENARIOS[currentIndex];
-      let html = `<div class="glass-card overflow-hidden"><div class="p-6 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white"><div class="text-xs font-bold text-indigo-600 uppercase">Escenario ${s.id} · Dominio SCARF: ${s.scarfDomain}</div><h2 class="text-xl font-display font-bold mt-1">${s.title}</h2><p class="text-sm text-gray-500 italic mt-1">${s.context}</p></div><div class="p-6"><div class="bg-gray-50 p-4 rounded-xl italic text-gray-700 border-l-4 border-indigo-400">${s.situation}</div><div class="mt-4 text-sm font-medium text-red-600">💥 Sientes un vacío en el estómago, presión en el pecho, calor o temblor.</div><div class="mt-6 font-bold text-sm uppercase tracking-wide text-gray-400">¿Cuál es tu reacción inmediata?</div><div class="mt-3" id="optionsContainer"></div><div id="feedbackPanel" class="feedback-panel"></div><div id="nextBtnWrap" class="mt-6 text-right hidden"><button class="btn-primary" onclick="nextScenario()">${currentIndex === SCENARIOS.length-1 ? 'Ver mis resultados →' : 'Siguiente escenario →'}</button></div></div></div>`;
-      document.getElementById('scenarioContainer').innerHTML = html;
-      const optsContainer = document.getElementById('optionsContainer');
-      optsContainer.innerHTML = '';
-      s.options.forEach(opt => {
-        let btn = document.createElement('button');
-        btn.className = 'option-btn';
-        btn.setAttribute('data-key', opt.key);
-        btn.innerHTML = `<div class="flex gap-3"><div class="font-bold text-lg w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">${opt.key}</div><div><span class="text-xs font-bold text-gray-500 uppercase">${opt.label}</span><p class="text-sm">${opt.text}</p></div></div>`;
-        btn.onclick = () => selectOption(opt.key);
-        optsContainer.appendChild(btn);
-      });
+
+      const optionsHTML = s.options.map(opt => `
+        <button
+          class="option-btn"
+          onclick="selectOption('${opt.key}')"
+          aria-label="Opción ${opt.key}: ${opt.label}"
+          data-key="${opt.key}">
+          <div class="option-inner">
+            <div class="option-key" aria-hidden="true">${opt.key}</div>
+            <div>
+              <div class="option-label-tag">${opt.label}</div>
+              <div class="option-text">${opt.text}</div>
+            </div>
+          </div>
+        </button>
+      `).join("");
+
+      const isLast = currentIndex === SCENARIOS.length - 1;
+
+      document.getElementById("scenarioContainer").innerHTML = `
+        <div class="scenario-card">
+          <div class="scenario-header">
+            <div class="scenario-meta">
+              <span class="scenario-num">Escenario ${s.id} de ${SCENARIOS.length}</span>
+              <span class="scarf-badge">${s.scarfDomain}</span>
+            </div>
+            <h2 class="scenario-title serif">${s.title}</h2>
+          </div>
+          <div class="scenario-body">
+            <p class="context-note">${s.context}</p>
+            <div class="situation-box" role="article">${s.situation}</div>
+            <div class="symptom-note" role="note">⚠ ${s.symptom}</div>
+            <div class="options-label">¿Cuál es tu reacción inmediata?</div>
+            <div id="optionsContainer" role="group" aria-label="Opciones de respuesta">
+              ${optionsHTML}
+            </div>
+            <div id="feedbackPanel" class="feedback-panel" role="region" aria-live="assertive"></div>
+            <div id="nextBtnWrap" class="next-wrap" style="display:none;">
+              <button class="btn-primary" onclick="nextScenario()">
+                ${isLast ? "Ver mis resultados →" : "Siguiente escenario →"}
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
     }
 
+    /* ============================================================
+       SELECCIÓN DE OPCIÓN
+    ============================================================ */
     function selectOption(key) {
       const s = SCENARIOS[currentIndex];
       const opt = s.options.find(o => o.key === key);
-      answers.push(key);
-      document.querySelectorAll('.option-btn').forEach(btn => { btn.disabled = true; btn.classList.add('disabled-opt'); });
-      const panel = document.getElementById('feedbackPanel');
-      panel.className = 'feedback-panel visible';
-      panel.innerHTML = `<div class="font-bold mb-1">${opt.label} — ${opt.emoji}</div><p>${opt.feedback}</p><div class="text-xs bg-white rounded-full px-3 py-1 inline-block mt-2">📚 ${opt.theory}</div>`;
-      document.getElementById('nextBtnWrap').classList.remove('hidden');
-      panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }
+      if (!opt) return;
 
-    function nextScenario() { currentIndex++; if (currentIndex < SCENARIOS.length) { renderScenario(); } else { showResults(); } }
+      answers.push({ scenario: s.id, key: key, title: s.title, optionLabel: opt.label, optionText: opt.text });
 
-    function computeScarf() { let totals = [0,0,0,0,0]; answers.forEach((ans, idx) => { let w = SCARF_WEIGHTS[(idx+1)+ans] || [50,50,50,50,50]; w.forEach((v,i)=>totals[i]+=v); }); return totals.map(v=>Math.round(v/answers.length)); }
-
-    function setupScarfTooltips() {
-      const items = document.querySelectorAll('.scarf-item');
-      const tooltipDiv = document.getElementById('scarfTooltip');
-      items.forEach(item => {
-        item.addEventListener('click', () => {
-          const domain = item.getAttribute('data-domain');
-          const desc = SCARF_DESCRIPTIONS[domain];
-          if (desc) {
-            tooltipDiv.className = `tooltip-card mt-4 border-l-4 border-${desc.color}-500`;
-            tooltipDiv.innerHTML = `<div class="font-bold ${domain === 'status' ? 'text-red-600' : domain === 'certainty' ? 'text-amber-600' : domain === 'autonomy' ? 'text-blue-600' : domain === 'relatedness' ? 'text-purple-600' : 'text-teal-600'}">${desc.title}</div><p class="text-gray-600 text-sm mt-1">${desc.text}</p><div class="text-xs text-gray-400 mt-2">💡 Porcentajes altos = mayor activación de amenaza en este dominio.</div>`;
-            tooltipDiv.classList.remove('hidden');
-            tooltipDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-          }
-        });
+      // Deshabilitar todos los botones
+      document.querySelectorAll(".option-btn").forEach(btn => {
+        btn.disabled = true;
+        if (btn.getAttribute("data-key") === key) {
+          btn.classList.add("selected");
+        }
       });
+
+      // Mostrar feedback
+      const panel = document.getElementById("feedbackPanel");
+      panel.classList.add("visible");
+      panel.innerHTML = `
+        <div class="feedback-title">Análisis — opción ${key}: ${opt.label}</div>
+        <div class="feedback-text">${opt.feedback}</div>
+        <div class="theory-pill">📚 ${opt.theory}</div>
+      `;
+
+      // Mostrar botón siguiente
+      document.getElementById("nextBtnWrap").style.display = "block";
+      panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
     }
 
+    /* ============================================================
+       SIGUIENTE ESCENARIO
+    ============================================================ */
+    function nextScenario() {
+      currentIndex++;
+      if (currentIndex < SCENARIOS.length) {
+        renderScenario();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } else {
+        showResults();
+      }
+    }
+
+    /* ============================================================
+       CALCULAR SCARF
+    ============================================================ */
+    function computeScarf() {
+      const totals = [0, 0, 0, 0, 0];
+      answers.forEach((ans, idx) => {
+        const weightKey = String(idx + 1) + ans.key;
+        const weights = SCARF_WEIGHTS[weightKey] || [50, 50, 50, 50, 50];
+        weights.forEach((v, i) => { totals[i] += v; });
+      });
+      return totals.map(v => Math.round(v / answers.length));
+    }
+
+    /* ============================================================
+       DETERMINAR PERFIL
+    ============================================================ */
+    function getProfile() {
+      const keyStr = answers.map(a => a.key).join("");
+      return PROFILES[keyStr] || PROFILES["default"];
+    }
+
+    /* ============================================================
+       MOSTRAR RESULTADOS
+    ============================================================ */
     function showResults() {
-      showScreen('screenResults');
-      let a = answers.filter(v=>v==='A').length, b = answers.filter(v=>v==='B').length, c = answers.filter(v=>v==='C').length, ie = Math.round((c/answers.length)*100);
-      document.getElementById('statA').innerText = a; document.getElementById('statB').innerText = b; document.getElementById('statC').innerText = c; document.getElementById('ieIndex').innerText = ie;
-      let profile = PROFILES[answers.join('')] || PROFILES['default'];
-      document.getElementById('profileIcon').innerText = profile.icon; document.getElementById('profileTitle').innerText = profile.title; document.getElementById('profileDesc').innerText = profile.desc;
-      if (chartInstance) chartInstance.destroy();
-      chartInstance = new Chart(document.getElementById('responseChart').getContext('2d'), { type: 'bar', data: { labels: ['Reactiva (A)', 'Evasiva (B)', 'Regulada (C)'], datasets: [{ label: 'Respuestas', data: [a,b,c], backgroundColor: ['#ef4444','#f59e0b','#10b981'] }] }, options: { responsive: true, maintainAspectRatio: true, scales: { y: { beginAtZero: true, max: 3, stepSize: 1 } } } });
-      let scarf = computeScarf();
-      setTimeout(() => {
-        document.getElementById('scarfStatus').style.width = scarf[0]+'%'; document.getElementById('scarfStatusVal').innerText = scarf[0]+'%';
-        document.getElementById('scarfCertainty').style.width = scarf[1]+'%'; document.getElementById('scarfCertaintyVal').innerText = scarf[1]+'%';
-        document.getElementById('scarfAutonomy').style.width = scarf[2]+'%'; document.getElementById('scarfAutonomyVal').innerText = scarf[2]+'%';
-        document.getElementById('scarfRelation').style.width = scarf[3]+'%'; document.getElementById('scarfRelationVal').innerText = scarf[3]+'%';
-        document.getElementById('scarfFair').style.width = scarf[4]+'%'; document.getElementById('scarfFairVal').innerText = scarf[4]+'%';
-        setupScarfTooltips();
-      }, 100);
-      let blocks = THEORY_BLOCKS[profile.theoryKey] || THEORY_BLOCKS['low'];
-      document.getElementById('theoryContent').innerHTML = blocks.map(b => `<div class="flex gap-3"><div class="text-2xl">${b.icon}</div><div><h4 class="font-bold">${b.title}</h4><p class="text-sm text-gray-300">${b.text}</p></div></div>`).join('');
+      showScreen("screenResults");
+
+      const countA = answers.filter(a => a.key === "A").length;
+      const countB = answers.filter(a => a.key === "B").length;
+      const countC = answers.filter(a => a.key === "C").length;
+      const ieIndex = Math.round((countC / answers.length) * 100);
+
+      // Stats
+      document.getElementById("statA").textContent = countA;
+      document.getElementById("statB").textContent = countB;
+      document.getElementById("statC").textContent = countC;
+      document.getElementById("ieIndex").textContent = ieIndex + "%";
+
+      // Perfil
+      const profile = getProfile();
+      const badge = document.getElementById("profileBadge");
+      badge.className = "profile-badge " + profile.profileClass;
+      document.getElementById("profileIcon").textContent = profile.icon;
+      document.getElementById("profileName").textContent = profile.name;
+      document.getElementById("profileDesc").textContent = profile.desc;
+
+      // Decision log
+      document.getElementById("decisionLog").innerHTML = answers.map(a => {
+        const badgeClass = { A: "badge-a", B: "badge-b", C: "badge-c" }[a.key];
+        const typeLabel = { A: "Reactiva", B: "Evasiva", C: "Regulada" }[a.key];
+        return `
+          <div class="decision-item">
+            <div class="decision-badge ${badgeClass}" aria-label="${typeLabel}">${a.key}</div>
+            <div>
+              <div class="decision-scenario">Escenario ${a.scenario} — ${a.title}</div>
+              <div class="decision-choice">${a.optionLabel}: ${a.optionText.substring(0, 120)}${a.optionText.length > 120 ? "…" : ""}</div>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      // Chart
+      if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+      const ctx = document.getElementById("responseChart").getContext("2d");
+      chartInstance = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: ["Reactiva (A)", "Evasiva (B)", "Regulada (C)"],
+          datasets: [{
+            label: "Respuestas",
+            data: [countA, countB, countC],
+            backgroundColor: ["#b83b3b", "#c97d20", "#2a7a4b"],
+            borderRadius: 6,
+            borderSkipped: false
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: SCENARIOS.length,
+              ticks: {
+                stepSize: 1,
+                color: "#9c9690",
+                font: { family: "DM Sans", size: 11 }
+              },
+              grid: { color: "#e3ddd3" }
+            },
+            x: {
+              ticks: { color: "#6b6560", font: { family: "DM Sans", size: 12 } },
+              grid: { display: false }
+            }
+          }
+        }
+      });
+
+      // SCARF bars
+      const scarfValues = computeScarf();
+      const scarfListEl = document.getElementById("scarfList");
+      scarfListEl.innerHTML = "";
+
+      SCARF_DOMAINS.forEach((domain, i) => {
+        const val = scarfValues[i];
+        const item = document.createElement("div");
+        item.className = "scarf-item";
+        item.setAttribute("role", "listitem");
+        item.setAttribute("tabindex", "0");
+        item.setAttribute("aria-label", `${domain.name}: ${val}%. Haz clic para más información.`);
+        item.setAttribute("data-domain-idx", i);
+        item.innerHTML = `
+          <div class="scarf-row">
+            <span class="scarf-name">${domain.icon} ${domain.name} <span style="font-size:0.74rem; font-weight:400; color:var(--text-muted);">(${domain.desc})</span></span>
+            <span class="scarf-val" id="scarfVal_${domain.key}" style="color:${domain.color};">0%</span>
+          </div>
+          <div class="scarf-track">
+            <div class="scarf-fill" id="scarfFill_${domain.key}" style="background:${domain.color};"></div>
+          </div>
+        `;
+
+        item.addEventListener("click", () => toggleScarfTooltip(i, domain, val, item));
+        item.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleScarfTooltip(i, domain, val, item); }});
+        scarfListEl.appendChild(item);
+
+        // Animate bars after paint
+        setTimeout(() => {
+          const fillEl = document.getElementById(`scarfFill_${domain.key}`);
+          const valEl = document.getElementById(`scarfVal_${domain.key}`);
+          if (fillEl) fillEl.style.width = val + "%";
+          if (valEl) valEl.textContent = val + "%";
+        }, 150 + i * 80);
+      });
+
+      // Teoría
+      const blocks = THEORY_BLOCKS[profile.theoryKey] || THEORY_BLOCKS["low"];
+      document.getElementById("theoryContent").innerHTML = blocks.map(b => `
+        <div class="theory-item">
+          <div class="theory-item-icon" aria-hidden="true">${b.icon}</div>
+          <div>
+            <div class="theory-item-title">${b.title}</div>
+            <div class="theory-item-text">${b.text}</div>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    /* ============================================================
+       SCARF TOOLTIP INTERACTIVO
+    ============================================================ */
+    let activeScarfIdx = -1;
+
+    function toggleScarfTooltip(idx, domain, val, itemEl) {
+      const tooltip = document.getElementById("scarfTooltip");
+      const allItems = document.querySelectorAll(".scarf-item");
+
+      if (activeScarfIdx === idx) {
+        // Cerrar
+        tooltip.classList.remove("visible");
+        itemEl.classList.remove("active");
+        activeScarfIdx = -1;
+        return;
+      }
+
+      // Cerrar el anterior
+      allItems.forEach(el => el.classList.remove("active"));
+      activeScarfIdx = idx;
+      itemEl.classList.add("active");
+
+      const threatLevel = val >= 70 ? "Alta activación de amenaza" : val >= 40 ? "Activación moderada" : "Activación baja";
+      const threatColor = val >= 70 ? domain.color : val >= 40 ? "#c97d20" : "#2a7a4b";
+
+      tooltip.innerHTML = `
+        <div class="scarf-tooltip-title" style="color:${domain.color};">${domain.icon} ${domain.name}</div>
+        <div class="scarf-tooltip-text">${domain.text}</div>
+        <div class="scarf-tooltip-note">
+          Tu puntuación: <strong style="color:${threatColor};">${val}% — ${threatLevel}</strong>
+        </div>
+      `;
+      tooltip.classList.add("visible");
+      tooltip.scrollIntoView({ behavior: "smooth", block: "nearest" });
     }
   </script>
 </body>
